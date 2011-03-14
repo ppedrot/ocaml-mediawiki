@@ -35,7 +35,7 @@ OAPI_EXPORTED=$(patsubst %.cmo,%.cmx, $(API_EXPORTED))
 	$(OCAMLC) $(OCAMLFLAGS) -c $<
 
 .ml.cmx:
-	$(if $(findstring $@, $(OAPI_EXPORTED)), $(OCAMLC) $(OCAMLFLAGS) -for-pack Mediawiki -c $<, $(OCAMLC) $(OCAMLFLAGS) -c $<)
+	$(if $(findstring $@, $(OAPI_EXPORTED)), $(OCAMLOPT) $(OCAMLOPTFLAGS) -for-pack Mediawiki -c $<, $(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<)
 
 
 all: dep $(SOURCE) $(API_EXPORTED)
