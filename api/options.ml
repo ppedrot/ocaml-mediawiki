@@ -6,9 +6,9 @@ let default opt def = match opt with
 | None -> def
 | Some x -> x
 
-let arg_namespace opt = match opt with
+let arg_namespace tag opt = match opt with
 | None -> []
-| Some ns -> ["namespace", Some (string_of_int ns)]
+| Some ns -> [tag ^ "namespace", Some (string_of_int ns)]
 
 let arg_minor_flag (flag : minor_flag) = match flag with
 | `DEFAULT -> []
@@ -26,5 +26,10 @@ let arg_create_flag (flag : create_flag) = match flag with
 | `NO_CREATE -> ["nocreate", None]
 | `CREATE_ONLY -> ["createonly", None]
 | `RECREATE -> ["recreate", None]
+
+let arg_redirect_filter tag (filter : redirect_filter) = match filter with
+| `ALL -> [tag ^ "redirectfilter", Some "all"]
+| `REDIRECT -> [tag ^ "redirectfilter", Some "redirects"]
+| `NOT_REDIRECT -> [tag ^ "redirectfilter", Some "nonredirects"]
 
 let arg_bool tag b = if b then [tag, None] else []

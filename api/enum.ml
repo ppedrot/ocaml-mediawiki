@@ -39,7 +39,16 @@ let query_list prop tag make_fun session opts =
 
 let backlinks (session : session) ?ns
     ?(rdrfilter = `ALL) ?(rdr = false) title =
-  let opts = ["bltitle", Some (string_of_title title)] @ (arg_namespace ns)
-    @ (arg_bool "blredirect" rdr)
+  let opts = ["bltitle", Some (string_of_title title)] @ (arg_namespace "bl" ns)
+    @ (arg_bool "blredirect" rdr) @ (arg_redirect_filter "bl" rdrfilter)
   in
+  (* FIXME : parse redirlinks *)
   query_list "backlinks" "bl" (make_title "bl") session opts
+
+(* Embedded pages *)
+
+let embeddedin (session : session) ?ns ?(rdrfilter = `ALL) title =
+  let opts = ["eititle", Some (string_of_title title)]
+    @ (arg_namespace "ei" ns) @ (arg_redirect_filter "ei" rdrfilter)
+  in
+  query_list "embeddedin" "ei" (make_title "ei") session opts
