@@ -59,6 +59,6 @@ dep:
 yacc:
 
 clean:
-	rm -rf *.cm[oix]
+	rm -rf $(shell find . -name "*.cm[oix]")
 
 include .depend 
