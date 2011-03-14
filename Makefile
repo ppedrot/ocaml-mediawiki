@@ -46,7 +46,7 @@ PROG=wikipedia
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<
 
 
-all: dep $(PROG)
+all: dep $(BYTEFILES)
 
 $(PROG): all
 	$(OCAMLC) $(OCAMLFLAGS) $(BYTEFILES) -o $(PROG) api/wikipedia.ml
@@ -59,6 +59,6 @@ dep:
 yacc:
 
 clean:
-# 	rm -f $(BYTEFILES) 
+	rm -rf *.cm[oix]
 
 include .depend 
