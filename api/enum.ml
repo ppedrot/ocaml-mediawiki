@@ -40,6 +40,6 @@ let query_list prop tag make_fun session opts =
 let backlinks (session : session) ?ns
     ?(rdrfilter = `ALL) ?(rdr = false) title =
   let opts = ["bltitle", Some (string_of_title title)] @ (arg_namespace ns)
-    @ (arg_bool "redirect" rdr)
+    @ (arg_bool "blredirect" rdr)
   in
   query_list "backlinks" "bl" (make_title "bl") session opts

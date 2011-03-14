@@ -27,4 +27,4 @@ let arg_create_flag (flag : create_flag) = match flag with
 | `CREATE_ONLY -> ["createonly", None]
 | `RECREATE -> ["recreate", None]
 
-let arg_bool tag b = if b then ["tag", None] else []
+let arg_bool tag b = if b then [tag, None] else []
