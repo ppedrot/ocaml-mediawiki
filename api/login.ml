@@ -42,9 +42,6 @@ let call f obj (q : query) cookies =
 class virtual generic_session site =
   object (self)
 
-    initializer
-      self#initialize_edit_token ()
-
     (* FIXME : use non redundant structure *)
     val mutable virtual cookies : Cookie.t list
     val mutable edit_token : token option = None
@@ -61,7 +58,9 @@ class virtual generic_session site =
     method is_valid = valid
 
     method edit_token = match edit_token with
-    | None -> assert false
+    | None ->
+      let () = self#initialize_edit_token () in
+      self#edit_token
     | Some tkn -> tkn
 
     method private set_cookie ck = cookies <- cookies @ [ck]

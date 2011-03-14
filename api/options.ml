@@ -10,6 +10,12 @@ let arg_namespace tag opt = match opt with
 | None -> []
 | Some ns -> [tag ^ "namespace", Some (string_of_int ns)]
 
+let arg_namespaces tag = function
+| [] -> []
+| l ->
+  let ns = List.map string_of_int l in
+  [tag ^ "namespace", Some (String.concat "|" ns)]
+
 let arg_minor_flag (flag : minor_flag) = match flag with
 | `DEFAULT -> []
 | `MINOR -> ["minor", None]

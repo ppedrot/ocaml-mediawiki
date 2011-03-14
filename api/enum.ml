@@ -9,7 +9,7 @@ open Prop
 let rec query_list_aux prop tag make_fun session opts continue accu =
   let process xml =
     let continue = get_continue xml prop in
-    let xml = find_by_tag "query" xml.Xml.children in
+    let xml = find_by_tag "query" xml.children in
     let data = try_children prop xml in
     let fold accu = function
     | Xml.Element elt -> make_fun elt :: accu
@@ -37,9 +37,9 @@ let query_list prop tag make_fun session opts =
 
 (* Back links *)
 
-let backlinks (session : session) ?ns
+let backlinks (session : session) ?(ns = [])
     ?(rdrfilter = `ALL) ?(rdr = false) title =
-  let opts = ["bltitle", Some (string_of_title title)] @ (arg_namespace "bl" ns)
+  let opts = ["bltitle", Some (string_of_title title)] @ (arg_namespaces "bl" ns)
     @ (arg_bool "blredirect" rdr) @ (arg_redirect_filter "bl" rdrfilter)
   in
   (* FIXME : parse redirlinks *)
@@ -47,8 +47,26 @@ let backlinks (session : session) ?ns
 
 (* Embedded pages *)
 
-let embeddedin (session : session) ?ns ?(rdrfilter = `ALL) title =
+let embeddedin (session : session) ?(ns = []) ?(rdrfilter = `ALL) title =
   let opts = ["eititle", Some (string_of_title title)]
-    @ (arg_namespace "ei" ns) @ (arg_redirect_filter "ei" rdrfilter)
+    @ (arg_namespaces "ei" ns) @ (arg_redirect_filter "ei" rdrfilter)
   in
   query_list "embeddedin" "ei" (make_title "ei") session opts
+
+(* Random pages *)
+
+let random (session : session) ?(ns = []) ?(rdr = false) () =
+  let process xml =
+    let xml = find_by_tag "query" xml.children in
+    let data = try_children "random" xml in
+    let page = match data with
+    | Element elt :: _ -> elt
+    | _ -> invalid_arg "Enum.random"
+    in
+    Call.return (make_title "page" page)
+  in
+  let call = session#get_call ([
+    "action", Some "query";
+    "list", Some "random";
+  ] @ (arg_namespaces "rn" ns) @ (arg_bool "rnredirect" rdr)) in
+  Call.bind (Call.http call) process

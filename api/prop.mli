@@ -36,7 +36,7 @@ val content : session -> revision list -> string MapID.t Call.t
 
 (** {1 Links} *)
 
-val links : session -> ?ns:namespace -> page -> title list Call.t
+val links : session -> ?ns:namespace list -> page -> title list Call.t
 (** Returns the list of link titles from a given page. *)
 
 (** {1 Language links} *)
@@ -51,7 +51,7 @@ val images : session -> page -> title list Call.t
 
 (** {1 Templates} *)
 
-val templates : session -> ?ns:namespace -> page -> title list Call.t
+val templates : session -> ?ns:namespace list -> page -> title list Call.t
 (** Returns the list of template titles used on a given page. *)
 
 (** {1 Categories} *)

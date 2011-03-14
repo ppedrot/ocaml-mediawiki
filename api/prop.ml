@@ -364,8 +364,8 @@ let revisions session page =
 
 (* Various stuff that return lists *)
 
-let links s ?ns =
-  generic_list "links" "pl" make_link (arg_namespace "pl" ns) s
+let links s ?(ns = []) =
+  generic_list "links" "pl" make_link (arg_namespaces "pl" ns) s
 
 let langlinks =
   generic_list "langlinks" "ll" make_langlink []
@@ -373,8 +373,8 @@ let langlinks =
 let images =
   generic_list "images" "im" make_imagelink []
 
-let templates s ?ns =
-  generic_list "templates" "tl" make_templatelink (arg_namespace "tl" ns) s
+let templates s ?(ns = []) =
+  generic_list "templates" "tl" make_templatelink (arg_namespaces "tl" ns) s
 
 let categories =
   generic_list "categories" "cl" make_category []
