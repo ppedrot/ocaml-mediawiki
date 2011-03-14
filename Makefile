@@ -4,61 +4,61 @@ OCAMLYACC=ocamlyacc
 OCAMLC=ocamlfind ocamlc
 OCAMLOPT=ocamlfind ocamlopt
 OCAMLDEP=ocamlfind ocamldep
+OCAMLMKLIB=ocamlfind ocamlmklib
 
 INCLUDES=-I tools -I api
 
 SYNTAX=camlp4o
 PACKAGES=threads expat pcre netstring netclient netcgi2 zip
 
-LIB=zip.cma expat.cma unix.cma pcre.cma equeue.cma netsys.cma netstring.cma netcgi.cma netclient.cma
+# LIB=zip.cma expat.cma unix.cma pcre.cma equeue.cma netsys.cma netstring.cma netcgi.cma netclient.cma
 
-OCAMLFLAGS=$(INCLUDES) -thread -g -w s $(addprefix -package , $(PACKAGES)) $(LIB)
-OCAMLOPTFLAGS=$(INCLUDES) -w s $(addprefix -package , $(PACKAGES))
+OCAMLFLAGS=$(INCLUDES) -thread -w s $(addprefix -package , $(PACKAGES))
+OCAMLOPTFLAGS=$(INCLUDES) -thread -w s $(addprefix -package , $(PACKAGES))
 OCAMLYACCFLAGS=
 OCAMLDEPFLAGS=$(INCLUDES)
+OCAMLMKLIBFLAGS=$(INCLUDES)
 
-API_FILES=call.mli call.ml site.mli site.ml datatypes.mli utils.mli utils.ml \
-options.mli options.ml login.mli login.ml prop.mli prop.ml enum.mli enum.ml edit.mli edit.ml wikipedia.ml
+SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/utils.cmo api/options.cmo
+API_EXPORTED = api/call.cmo api/datatypes.cmi api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo
 
-TOOLS_FILES=netgzip.mli netgzip.ml xml.mli xml.ml cookie.mli cookie.ml
-
-FILES=$(addprefix tools/, $(TOOLS_FILES)) $(addprefix api/, $(API_FILES))
-
-MLFILES=$(filter %.ml, $(FILES))
-MLIFILES=$(filter %.mli, $(FILES))
-
-BYTEFILES=$(addsuffix .cmo, $(basename $(MLFILES)))
-INTERFACES=$(addsuffix .cmi, $(basename $(MLIFILES)))
-OPTFILES=$(addsuffix .cmx, $(basename $(MLFILES)))
-
-PROG=wikipedia
+OSOURCE=$(patsubst %.cmo,%.cmx,$(SOURCE))
+OAPI_EXPORTED=$(patsubst %.cmo,%.cmx, $(API_EXPORTED))
 
 # Common rules
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .ml.cmo:
-	$(OCAMLC) $(OCAMLFLAGS) -c $<
+	$(if $(findstring $@, $(API_EXPORTED)), $(OCAMLC) $(OCAMLFLAGS) -for-pack Mediawiki -c $<, $(OCAMLC) $(OCAMLFLAGS) -c $<)
 
 .mli.cmi:
 	$(OCAMLC) $(OCAMLFLAGS) -c $<
 
 .ml.cmx:
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<
+	$(if $(findstring $@, $(OAPI_EXPORTED)), $(OCAMLC) $(OCAMLFLAGS) -for-pack Mediawiki -c $<, $(OCAMLC) $(OCAMLFLAGS) -c $<)
 
 
-all: dep $(BYTEFILES)
+all: dep $(SOURCE) $(API_EXPORTED)
 
-$(PROG): all
-	$(OCAMLC) $(OCAMLFLAGS) $(BYTEFILES) -o $(PROG) api/wikipedia.ml
+lib: all
+	$(OCAMLC) $(OCAMLFLAGS) -pack $(API_EXPORTED) -o mediawiki.cmo
+	$(OCAMLC) $(OCAMLFLAGS) -a  $(SOURCE) mediawiki.cmo -o mediawiki.cma
 
-opt: dep wikipedia.cmx
+opt: dep $(OSOURCE) $(OAPI_EXPORTED)
+
+optlib: opt
+	$(OCAMLOPT) $(OCAMLFLAGS) -pack $(OAPI_EXPORTED) -o mediawiki.cmx
+	$(OCAMLOPT) $(OCAMLFLAGS) -a  $(OSOURCE) mediawiki.cmx -o mediawiki.cmxa
+
+opt:
+	@echo $(OSOURCE)
 
 dep:
-	$(OCAMLDEP) $(OCAMLDEPFLAGS) $(MLFILES) $(MLIFILES) > .depend
+	$(OCAMLDEP) $(OCAMLDEPFLAGS) $(shell find . -name "*.ml") $(shell find . -name "*.mli") > .depend
 
 yacc:
 
 clean:
-	rm -rf $(shell find . -name "*.cm[oix]")
+	rm -rf $(shell find . -name "*.cm[aoix]*") $(shell find . -name "*.o")
 
 include .depend 
