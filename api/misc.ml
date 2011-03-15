@@ -24,3 +24,16 @@ let emailuser (session : session) ?(subject = "") ?(text = "")
   ] @ (arg_bool "ccme" ccme) in
   let call = session#post_call query in
   Call.bind (Call.http call) ignore
+
+let watch (session : session) title =
+  let query = [ "action", Some "watch" ] @ (arg_title "" title) in
+  let call = session#post_call query in
+  Call.bind (Call.http call) ignore
+
+let unwatch (session : session) title =
+  let query = [
+    "action", Some "watch";
+    "unwatch", None ]
+    @ (arg_title "" title) in
+  let call = session#post_call query in
+  Call.bind (Call.http call) ignore

@@ -2,6 +2,8 @@ open Datatypes
 
 type mw_version = { mw_major : int; mw_minor : int; }
 
+val user_agent : string
+
 (** {1 Identifiers} *)
 
 val id_of_string : string -> id

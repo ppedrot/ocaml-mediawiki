@@ -356,10 +356,13 @@ let generic_list prop tag make_fun opts session page =
 
 (* Revisions *)
 
-let revisions session page =
+let revisions session ?fromid ?uptoid ?fromts ?uptots ?(usrfilter = `ALL) page =
   let pageid = string_of_id page.page_id in
+  let opts = (arg_timestamp "rvend" fromts)
+    @ (arg_timestamp "rvstart" uptots) @ (arg_id "rvendid" fromid)
+    @ (arg_id "rvstartid" uptoid) @ (arg_user_filter "rv" usrfilter) in
   let make = make_revision page.page_id in
-  let call = generic_list_aux "revisions" "rv" make [] in
+  let call = generic_list_aux "revisions" "rv" make opts in
   call session pageid `START []
 
 (* Various stuff that return lists *)

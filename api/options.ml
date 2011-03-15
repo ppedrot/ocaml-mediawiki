@@ -20,6 +20,14 @@ let arg_namespaces tag = function
   let ns = List.map string_of_int l in
   [tag ^ "namespace", Some (String.concat "|" ns)]
 
+let arg_timestamp tag = function
+| None -> []
+| Some ts -> [tag, Some (print_timestamp ts)]
+
+let arg_id tag = function
+| None -> []
+| Some id -> [tag, Some (string_of_id id)]
+
 let arg_minor_flag (flag : minor_flag) = match flag with
 | `DEFAULT -> []
 | `MINOR -> ["minor", None]
@@ -41,5 +49,10 @@ let arg_redirect_filter tag (filter : redirect_filter) = match filter with
 | `ALL -> [tag ^ "redirectfilter", Some "all"]
 | `REDIRECT -> [tag ^ "redirectfilter", Some "redirects"]
 | `NOT_REDIRECT -> [tag ^ "redirectfilter", Some "nonredirects"]
+
+let arg_user_filter tag (filter : user_filter) = match filter with
+| `ALL -> []
+| `EXCLUDE user -> [tag ^ "excludeuser", Some user]
+| `ONLY user -> [tag ^ "user", Some user]
 
 let arg_bool tag b = if b then [tag, None] else []

@@ -28,8 +28,8 @@ let call f obj (q : query) cookies =
   let call = f query in
   let hd = call#request_header `Base in
   let agent = match obj#username with
-  | None -> "mlwiki"
-  | Some name -> sprintf "mlwiki::%s" name
+  | None -> user_agent
+  | Some name -> sprintf "%s::%s" user_agent name
   in
   let mime = "application/x-www-form-urlencoded" in
   let () = Cookie.set_cookie hd cookies in

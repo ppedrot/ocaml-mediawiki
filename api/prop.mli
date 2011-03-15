@@ -19,7 +19,8 @@ val of_pageids : session -> id list -> page_result MapID.t Call.t
 
 (** {1 Revision retrieving} *)
 
-val revisions : session -> page -> revision list Call.t
+val revisions : session -> ?fromid:id -> ?uptoid:id -> ?fromts:timestamp ->
+  ?uptots:timestamp -> ?usrfilter:user_filter -> page -> revision list Call.t
 (** Returns the list of revisions of a given page. 
     Empty result if the page is invalid. *)
 

@@ -8,6 +8,8 @@ type mw_version = {
   mw_minor : int;
 }
 
+let user_agent = "ocaml-mediawiki"
+
 let id_of_string = Int64.of_string
 let string_of_id = Int64.to_string
 
