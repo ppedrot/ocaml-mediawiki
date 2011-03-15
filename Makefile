@@ -1,5 +1,7 @@
 # $Id: Makefile
 
+OCAMLLIB=/usr/lib/ocaml/
+
 OCAMLYACC=ocamlyacc
 OCAMLC=ocamlfind ocamlc
 OCAMLOPT=ocamlfind ocamlopt
@@ -21,6 +23,8 @@ OCAMLMKLIBFLAGS=$(INCLUDES)
 
 SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
 API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/misc.cmo
+
+INSTALLED=META mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 
 OSOURCE=$(patsubst %.cmo,%.cmx,$(SOURCE))
 OAPI_EXPORTED=$(patsubst %.cmo,%.cmx, $(API_EXPORTED))
@@ -60,5 +64,12 @@ yacc:
 
 clean:
 	rm -rf $(shell find . -name "*.cm[aoix]*") $(shell find . -name "*.o")
+
+install:
+	mkdir $(OCAMLLIB)/mediawiki
+	cp  $(INSTALLED) $(OCAMLLIB)/mediawiki
+	cd $(OCAMLLIB)/mediawiki
+	chown root:root $(INSTALLED)
+	chmod 644 $(INSTALLED)
 
 include .depend 

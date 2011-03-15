@@ -1,0 +1,8 @@
+name="ocaml-mediawiki"
+version="0.1"
+description="A client for MediaWiki API"
+requires="zip, expat, netclient"
+
+archive(byte)="mediawiki.cma"
+archive(native)="mediawiki.cmxa"
+
