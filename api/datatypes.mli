@@ -10,10 +10,12 @@ type timestamp = Netdate.t
 
 type language = string
 
+type user = string
+
 type token_type = [ `EDIT ]
 
 type redirect_filter = [ `ALL | `REDIRECT | `NOT_REDIRECT ]
-type user_filter = [ `ALL | `EXCLUDE of string | `ONLY of string ]
+type user_filter = [ `ALL | `EXCLUDE of user | `ONLY of user ]
 type category_filter = [ `HIDDEN | `NOT_HIDDEN ]
 
 type minor_flag = [ `DEFAULT | `MINOR | `NOT_MINOR ]

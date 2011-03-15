@@ -19,8 +19,8 @@ OCAMLYACCFLAGS=
 OCAMLDEPFLAGS=$(INCLUDES)
 OCAMLMKLIBFLAGS=$(INCLUDES)
 
-SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/utils.cmo api/options.cmo
-API_EXPORTED = api/call.cmo api/datatypes.cmi api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo
+SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
+API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/misc.cmo
 
 OSOURCE=$(patsubst %.cmo,%.cmx,$(SOURCE))
 OAPI_EXPORTED=$(patsubst %.cmo,%.cmx, $(API_EXPORTED))

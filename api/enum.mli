@@ -16,3 +16,32 @@ val backlinks : session ->
 val embeddedin : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter ->
   title -> title list Call.t
+
+(** {1 Image usage} *)
+
+val imageusage : session ->
+  ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
+  title -> title list Call.t
+
+(* TODO *)
+
+(*
+  allimages
+  allpages
+  alllinks
+  allcategories
+  allusers
+  blocks
+  categorymembers
+  deletedrevs
+  logevents
+  recentchanges
+  search
+  tags
+  usercontribs
+  watchlist
+  watchlistraw
+  exturlusage
+  users
+  protectedtitles
+*)

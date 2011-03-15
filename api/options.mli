@@ -4,6 +4,8 @@ open Datatypes
 
 (* val arg_namespace : string -> namespace option -> query *)
 
+val arg_title : string -> title -> query
+
 val arg_namespaces : string -> namespace list -> query
 
 val arg_minor_flag : minor_flag -> query

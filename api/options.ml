@@ -1,10 +1,14 @@
 open Datatypes
+open Utils
 
 (* Translation from arguments to strings *)
 
 let default opt def = match opt with
 | None -> def
 | Some x -> x
+
+let arg_title tag title =
+  [tag ^ "title", Some (string_of_title title)]
 
 let arg_namespace tag opt = match opt with
 | None -> []

@@ -35,11 +35,15 @@ let rec query_list_aux prop tag make_fun session opts continue accu =
 let query_list prop tag make_fun session opts =
   query_list_aux prop tag make_fun session opts `START []
 
+(* AllImages *)
+
+let allimages (session : session) = assert false
+
 (* Back links *)
 
 let backlinks (session : session) ?(ns = [])
     ?(rdrfilter = `ALL) ?(rdr = false) title =
-  let opts = ["bltitle", Some (string_of_title title)] @ (arg_namespaces "bl" ns)
+  let opts = (arg_title "bl" title) @ (arg_namespaces "bl" ns)
     @ (arg_bool "blredirect" rdr) @ (arg_redirect_filter "bl" rdrfilter)
   in
   (* FIXME : parse redirlinks *)
@@ -48,8 +52,8 @@ let backlinks (session : session) ?(ns = [])
 (* Embedded pages *)
 
 let embeddedin (session : session) ?(ns = []) ?(rdrfilter = `ALL) title =
-  let opts = ["eititle", Some (string_of_title title)]
-    @ (arg_namespaces "ei" ns) @ (arg_redirect_filter "ei" rdrfilter)
+  let opts = (arg_title "ei" title) @ (arg_namespaces "ei" ns)
+    @ (arg_redirect_filter "ei" rdrfilter)
   in
   query_list "embeddedin" "ei" (make_title "ei") session opts
 
@@ -70,3 +74,12 @@ let random (session : session) ?(ns = []) ?(rdr = false) () =
     "list", Some "random";
   ] @ (arg_namespaces "rn" ns) @ (arg_bool "rnredirect" rdr)) in
   Call.bind (Call.http call) process
+
+(* Image usage *)
+
+let imageusage (session : session) ?(ns = [])
+    ?(rdrfilter:redirect_filter = `ALL) ?(rdr = false) title =
+  let opts = (arg_title "iu" title) @ (arg_namespaces "iu" ns)
+    @ (arg_bool "iuredirect" rdr) @ (arg_redirect_filter "iu" rdrfilter)
+  in
+  query_list "imageusage" "iu" (make_title "iu") session opts
