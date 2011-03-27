@@ -3,11 +3,6 @@ open Datatypes
 
 (** {1 Page retrieving} *)
 
-type page_result =
-| Invalid
-| Missing of title
-| Existing of page
-
 val of_titles : session -> string list -> page_result MapString.t Call.t
 (** [of_titles s titles] associates to every title in [titles] the corresponding
     page. If the title is invalid, associates [Invalid]. If the page is missing,

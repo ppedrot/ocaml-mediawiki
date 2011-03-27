@@ -23,11 +23,20 @@ let get_login name pass = {
 
 (* Generic call: embeds low-level stuff *)
 
-let call f obj (q : query) cookies =
-  let query = obj#site#query q in
-  let call = f query in
+let encode s = Netencoding.Url.encode ~plus:false s
+
+let urlencode q =
+  let map = function
+  | (v, None) -> sprintf "&%s" (encode v)
+  | (v, Some arg) -> sprintf "&%s=%s" (encode v) (encode arg)
+  in
+  String.concat "" (List.map map q) 
+
+let call site username (q : query) cookies =
+  let query = urlencode q in
+  let call = new post_raw site#api_address query in
   let hd = call#request_header `Base in
-  let agent = match obj#username with
+  let agent = match username with
   | None -> user_agent
   | Some name -> sprintf "%s::%s" user_agent name
   in
@@ -49,11 +58,13 @@ class virtual generic_session site =
 
     method site : site = site
 
-    method get_call q =
-      Call.cast (call (new get) self q cookies) self#set_cookie
+    method virtual username : string option
+
+    method get_call = self#post_call
+(*       Call.cast (call (new get) self q cookies) self#set_cookie *)
 
     method post_call q =
-      Call.cast (call (fun q -> new post q []) self q cookies) self#set_cookie
+      Call.cast (call self#site self#username q cookies) self#set_cookie
 
     method is_valid = valid
 
@@ -107,16 +118,12 @@ class virtual generic_session site =
   end
 
 let rec login site lg : session =
-  let query = site#query [
+  let query = urlencode [
     "action", Some "login";
     "lgname", Some lg.login_name;
     "lgpassword", Some lg.login_password;
     "lgtoken", lg.login_token;
   ] in
-(*  let query = match lg.login_token with
-  | None -> query
-  | Some tkn -> sprintf "%s&lgtoken=%s" query tkn
-  in*)
   let call = new post query [] in
   let () = Cookie.set_cookie (call#request_header `Base) lg.login_cookies in
   let () = pipeline#add call in

@@ -54,9 +54,6 @@ optlib: opt
 	$(OCAMLOPT) $(OCAMLFLAGS) -pack $(OAPI_EXPORTED) -o mediawiki.cmx
 	$(OCAMLOPT) $(OCAMLFLAGS) -a  $(OSOURCE) mediawiki.cmx -o mediawiki.cmxa
 
-opt:
-	@echo $(OSOURCE)
-
 dep:
 	$(OCAMLDEP) $(OCAMLDEPFLAGS) $(shell find . -name "*.ml") $(shell find . -name "*.mli") > .depend
 
@@ -66,10 +63,10 @@ clean:
 	rm -rf $(shell find . -name "*.cm[aoix]*") $(shell find . -name "*.o")
 
 install:
-	mkdir $(OCAMLLIB)/mediawiki
+	mkdir -p $(OCAMLLIB)/mediawiki
 	cp  $(INSTALLED) $(OCAMLLIB)/mediawiki
-	cd $(OCAMLLIB)/mediawiki
-	chown root:root $(INSTALLED)
-	chmod 644 $(INSTALLED)
+# 	for $f in $(INSTALLED) echo $i
+# 	chown root:root $(OCAMLLIB)/mediawiki/$(INSTALLED)
+# 	chmod 644 $(OCAMLLIB)/mediawiki/$(INSTALLED)
 
 include .depend 

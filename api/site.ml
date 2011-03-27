@@ -12,13 +12,15 @@ let fr_wikisource : site =
 
     method name = "wikisource"
 
-    method query q =
+    method api_address = "http://fr.wikisource.org/w/api.php?format=xml"
+
+(*    method query q =
       let api = "http://fr.wikisource.org/w/api.php?format=xml" in
       let map = function
       | (v, None) -> sprintf "&%s" (encode v)
       | (v, Some arg) -> sprintf "&%s=%s" (encode v) (encode arg)
       in
-      String.concat "" (api :: List.map map q)
+      String.concat "" (api :: List.map map q) *)
 
     method session = session
 

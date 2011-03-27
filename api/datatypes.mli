@@ -1,5 +1,3 @@
-open Http_client
-
 type id = int64
 
 type query = (string * string option) list
@@ -59,10 +57,13 @@ type langlink = {
   lang_language : language;
 }
 
+type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]
+
 class type site =
   object
     method name : string
-    method query : query -> string
+    method api_address : string
+(*     method query : query -> string *)
     method session : session option
     method set_session : session -> unit
     method clear_session : unit -> unit

@@ -10,13 +10,6 @@ let dummy_title = {
   title_namespace = 0;
 }
 
-(* Pages *)
-
-type page_result =
-| Invalid
-| Missing of title
-| Existing of page
-
 (* TODO *)
 let check_title t =
   if String.contains t '|' || String.contains t '#'
@@ -53,10 +46,10 @@ let make_page data =
     raise (Call.API "Invalid argument: make_page");
   let l = data.Xml.attribs in
   if List.mem_assoc "missing" l then
-    try Missing (make_title "page" data)
-    with _ -> Invalid
-  else if List.mem_assoc "invalid" l then Invalid
-  else Existing {
+    try `MISSING (make_title "page" data)
+    with _ -> `INVALID
+  else if List.mem_assoc "invalid" l then `INVALID
+  else `EXISTING {
     page_title = make_title "page" data;
     page_id = id_of_string (List.assoc "pageid" l);
     page_touched = parse_timestamp (List.assoc "touched" l);
