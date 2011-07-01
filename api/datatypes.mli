@@ -65,13 +65,21 @@ type langlink = {
   lang_language : language;
 }
 
+type namespace_info = {
+  ns_id : namespace;
+  ns_name : string;
+  ns_canonical : string;
+  ns_case_sensible : bool;
+  ns_subpages : bool;
+  ns_aliases : string list;
+}
+
 type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]
 
 class type site =
   object
     method name : string
     method api_address : string
-(*     method query : query -> string *)
     method session : session option
     method set_session : session -> unit
     method clear_session : unit -> unit

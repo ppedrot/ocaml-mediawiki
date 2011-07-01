@@ -22,7 +22,7 @@ OCAMLDEPFLAGS=$(INCLUDES)
 OCAMLMKLIBFLAGS=$(INCLUDES)
 
 SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
-API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo
+API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
 
 INSTALLED=META mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 
