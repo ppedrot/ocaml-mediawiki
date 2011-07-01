@@ -21,44 +21,48 @@ OCAMLYACCFLAGS=
 OCAMLDEPFLAGS=$(INCLUDES)
 OCAMLMKLIBFLAGS=$(INCLUDES)
 
-SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
-API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
+# SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
+# API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
+
+INTERFACE=tools/xml.mli tools/cookie.mli api/call.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/prop.mli api/enum.mli api/edit.mli api/misc.mli api/meta.mli
 
 OBJS=tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
 
 OPTOBJS=$(patsubst %.cmo,%.cmx, $(OBJS))
 
+CMOS=$(filter %.cmo,$(OBJS))
+CMXS=$(patsubst %.cmo,%.cmx, $(CMOS))
+
+
 INSTALLED=META mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 
-OSOURCE=$(patsubst %.cmo,%.cmx,$(SOURCE))
-OAPI_EXPORTED=$(patsubst %.cmo,%.cmx, $(API_EXPORTED))
+# OSOURCE=$(patsubst %.cmo,%.cmx,$(SOURCE))
+# OAPI_EXPORTED=$(patsubst %.cmo,%.cmx, $(API_EXPORTED))
 
 # Common rules
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .ml.cmo:
-	$(if $(findstring $@, $(API_EXPORTED)), $(OCAMLC) $(OCAMLFLAGS) -for-pack Mediawiki -c $<, $(OCAMLC) $(OCAMLFLAGS) -c $<)
+	$(OCAMLC) $(OCAMLFLAGS) -for-pack Mediawiki -c $<
 
 .mli.cmi:
 	$(OCAMLC) $(OCAMLFLAGS) -c $<
 
 .ml.cmx:
-	$(if $(findstring $@, $(OAPI_EXPORTED)), $(OCAMLOPT) $(OCAMLOPTFLAGS) -for-pack Mediawiki -c $<, $(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<)
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -for-pack Mediawiki -c $<
 
+all: mediawiki.mli dep mediawiki.cmi runlib optlib
 
-all: dep runlib optlib
-
-run: dep $(SOURCE) $(API_EXPORTED)
+run: dep $(OBJS)
 
 runlib: run
-	$(OCAMLC) $(OCAMLFLAGS) -pack $(API_EXPORTED) -o mediawiki.cmo
-	$(OCAMLC) $(OCAMLFLAGS) -a  $(SOURCE) mediawiki.cmo -o mediawiki.cma
+	$(OCAMLC) $(OCAMLFLAGS) -pack $(OBJS) -o mediawiki.cmo
+	$(OCAMLC) $(OCAMLFLAGS) -a mediawiki.cmo -o mediawiki.cma
 
-opt: dep $(OSOURCE) $(OAPI_EXPORTED)
+opt: dep $(OPTOBJS)
 
 optlib: opt
-	$(OCAMLOPT) $(OCAMLFLAGS) -pack $(OAPI_EXPORTED) -o mediawiki.cmx
-	$(OCAMLOPT) $(OCAMLFLAGS) -a  $(OSOURCE) mediawiki.cmx -o mediawiki.cmxa
+	$(OCAMLOPT) $(OCAMLFLAGS) -a $(CMXS) -o mediawiki.cmxa
 
 dep:
 	$(OCAMLDEP) $(OCAMLDEPFLAGS) $(shell find . -name "*.ml") $(shell find . -name "*.mli") > .depend
@@ -66,13 +70,14 @@ dep:
 yacc:
 
 clean:
+	rm -f mediawiki.mli mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 	rm -rf $(shell find . -name "*.cm[aoix]*") $(shell find . -name "*.o")
 
 install:
 	mkdir -p $(OCAMLLIB)/mediawiki
 	cp  $(INSTALLED) $(OCAMLLIB)/mediawiki
-# 	for $f in $(INSTALLED) echo $i
-# 	chown root:root $(OCAMLLIB)/mediawiki/$(INSTALLED)
-# 	chmod 644 $(OCAMLLIB)/mediawiki/$(INSTALLED)
+
+mediawiki.mli:
+	ocaml make_interface.ml $(INTERFACE)
 
 include .depend 
