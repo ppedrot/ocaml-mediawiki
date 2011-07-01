@@ -45,14 +45,14 @@ let write_page (session : session) text ?summary ?(minor = `DEFAULT)
   ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) page =
   let token = session#edit_token in
   let digest = Digest.to_hex (Digest.string text) in
-  (* A call to retrieve the timestamp of the lastest revision *)
-  let ts_call = session#get_call [
+(*  let ts_call = session#get_call [
     "action", Some "query";
     "prop", Some "revisions";
     "rvprop", Some "timestamp";
     "revids", Some (string_of_id page.page_lastrevid);
-  ] in
-  let write_call ts = session#post_call ([
+  ] in *)
+  let ts = print_timestamp page.page_touched in
+  let write_call = session#post_call ([
     "action", Some "edit";
     "title", Some (string_of_title page.page_title);
     "basetimestamp", Some ts;
@@ -63,7 +63,5 @@ let write_page (session : session) text ?summary ?(minor = `DEFAULT)
   ] @ (arg_minor_flag minor) @ (arg_watch_flag watch) @ (arg_bool "bot" bot)
     @ (arg_create_flag create))
   in
-  Call.bind (Call.http ts_call) (fun xml ->
-  let ts = get_timestamp xml in
-  Call.bind (Call.http (write_call ts)) (fun xml ->
-  Call.return (get_edit_result xml)))
+  Call.bind (Call.http write_call) (fun xml ->
+  Call.return (get_edit_result xml))

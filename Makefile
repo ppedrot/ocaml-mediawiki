@@ -22,7 +22,7 @@ OCAMLDEPFLAGS=$(INCLUDES)
 OCAMLMKLIBFLAGS=$(INCLUDES)
 
 SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
-API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/misc.cmo
+API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo
 
 INSTALLED=META mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 
@@ -42,9 +42,11 @@ OAPI_EXPORTED=$(patsubst %.cmo,%.cmx, $(API_EXPORTED))
 	$(if $(findstring $@, $(OAPI_EXPORTED)), $(OCAMLOPT) $(OCAMLOPTFLAGS) -for-pack Mediawiki -c $<, $(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<)
 
 
-all: dep $(SOURCE) $(API_EXPORTED)
+all: dep runlib optlib
 
-lib: all
+run: dep $(SOURCE) $(API_EXPORTED)
+
+runlib: run
 	$(OCAMLC) $(OCAMLFLAGS) -pack $(API_EXPORTED) -o mediawiki.cmo
 	$(OCAMLC) $(OCAMLFLAGS) -a  $(SOURCE) mediawiki.cmo -o mediawiki.cma
 
