@@ -38,7 +38,7 @@ val http : call -> Xml.elt t
 
 (** {1 Casting HTTP calls into abstract calls} *)
 
-val cast : http_call -> (Cookie.t -> unit) -> call
+val cast : http_call -> (Nethttp.cookie -> unit) -> call
 (** [cast c f] permits to deal with Set-Cookies headers of answers: [f] will be
   fed with such cookies. *)
 

@@ -1,6 +1,6 @@
 open Netmime
 
-type t
+type t = Nethttp.cookie
 
 val set_cookie : #mime_header -> t list -> unit
 

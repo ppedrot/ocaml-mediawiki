@@ -24,7 +24,7 @@ OCAMLMKLIBFLAGS=$(INCLUDES)
 # SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
 # API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
 
-INTERFACE=tools/xml.mli tools/cookie.mli api/call.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/prop.mli api/enum.mli api/edit.mli api/misc.mli api/meta.mli
+INTERFACE=tools/xml.mli api/call.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/prop.mli api/enum.mli api/edit.mli api/misc.mli api/meta.mli
 
 OBJS=tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
 
@@ -51,17 +51,18 @@ INSTALLED=META mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 .ml.cmx:
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -for-pack Mediawiki -c $<
 
-all: mediawiki.mli dep mediawiki.cmi runlib optlib
+all: dep runlib optlib
 
-run: dep $(OBJS)
+run: $(OBJS)
 
-runlib: run
+runlib: run mediawiki.cmi
 	$(OCAMLC) $(OCAMLFLAGS) -pack $(OBJS) -o mediawiki.cmo
 	$(OCAMLC) $(OCAMLFLAGS) -a mediawiki.cmo -o mediawiki.cma
 
-opt: dep $(OPTOBJS)
+opt: $(OPTOBJS)
 
-optlib: opt
+optlib: opt mediawiki.cmi 
+	$(OCAMLOPT) $(OCAMLFLAGS) -pack $(OPTOBJS) -o mediawiki.cmx
 	$(OCAMLOPT) $(OCAMLFLAGS) -a $(CMXS) -o mediawiki.cmxa
 
 dep:
