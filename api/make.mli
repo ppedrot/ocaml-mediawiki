@@ -25,5 +25,7 @@ val make_category : Xml.elt -> string
 
 val make_content : Xml.elt -> string
 
+val make_nsinfo : Xml.xml list -> Xml.elt -> namespace_info
+
 val get_continue : Xml.elt -> string ->
   [> `CONTINUE of (string * string option) list | `STOP ]

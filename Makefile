@@ -21,8 +21,12 @@ OCAMLYACCFLAGS=
 OCAMLDEPFLAGS=$(INCLUDES)
 OCAMLMKLIBFLAGS=$(INCLUDES)
 
-SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/make.cmo
-API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
+SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
+API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
+
+OBJS=tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
+
+OPTOBJS=$(patsubst %.cmo,%.cmx, $(OBJS))
 
 INSTALLED=META mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 

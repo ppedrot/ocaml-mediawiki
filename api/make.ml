@@ -83,6 +83,38 @@ let make_content data =
     raise (Call.API "Invalid argument: make_content");
   get_cdata data
 
+let make_nsinfo aliases data =
+  if data.Xml.tag <> "ns" then
+    raise (Call.API "Invalid argument: make_nsinfo");
+  let l = data.Xml.attribs in
+  let id = List.assoc "id" l in
+  let fold accu = function
+  | Element ({ Xml.tag = "ns" } as elt) ->
+    let vid = List.assoc "id" elt.Xml.attribs in 
+    if vid = id then
+      (get_cdata elt) :: accu
+    else
+      accu
+  | _ -> accu
+  in
+  let case = match List.assoc "case" l with
+  | "case-sensitive" -> true
+  | _ -> false
+  in
+  let canonical =
+    try Some (List.assoc "canonical" l)
+    with Not_found -> None
+  in
+  {
+    ns_id = int_of_string id;
+    ns_name = get_cdata data;
+    ns_subpages = List.mem_assoc "subpages" l;
+    ns_case_sensitive = case;
+    ns_canonical = canonical;
+    ns_aliases = List.fold_left fold [] aliases;
+    ns_content = List.mem_assoc "content" l;
+  }
+
 let get_continue data query =
   try
     let node = find_by_tag "query-continue" data.Xml.children in
@@ -90,3 +122,4 @@ let get_continue data query =
     let arg = List.map (fun (n, v) -> n, Some v) node.Xml.attribs in
     `CONTINUE arg
   with _ -> `STOP
+

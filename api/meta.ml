@@ -1,16 +1,21 @@
-open Utils
-open Datatypes
 open Xml
-
-let make_ns aliases data =
-  assert false
+open Datatypes
+open Utils
+open Make
 
 let namespaces session =
   let process xml =
     let xml = find_by_tag "query" xml.Xml.children in
     let nss = try_children "namespaces" xml in
-    let nsaliases = try_children "namespacesaliases" in
-    Call.return (List.map (make_ns nsaliases) nss)
+    let nsaliases = try_children "namespacealiases" xml in
+    let fold accu = function
+    | Element ({ Xml.tag = "ns" } as elt) ->
+      let nsinfo = make_nsinfo nsaliases elt in
+      nsinfo :: accu
+    | _ -> accu
+    in
+    let ans = List.fold_left fold [] nss in
+    Call.return ans
   in
   let call = session#get_call [
     "action", Some "query";

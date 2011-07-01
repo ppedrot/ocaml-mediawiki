@@ -68,8 +68,9 @@ type langlink = {
 type namespace_info = {
   ns_id : namespace;
   ns_name : string;
-  ns_canonical : string;
-  ns_case_sensible : bool;
+  ns_canonical : string option;
+  ns_content : bool;
+  ns_case_sensitive : bool;
   ns_subpages : bool;
   ns_aliases : string list;
 }
