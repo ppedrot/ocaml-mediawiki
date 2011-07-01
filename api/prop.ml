@@ -72,6 +72,16 @@ let make_revision page data =
     rev_minor = List.mem_assoc "minor" l;
   }
 
+let make_diff data =
+  if data.Xml.tag <> "diff" then
+    raise (Call.API "Invalid argument: make_diff");
+  let l = data.Xml.attribs in
+  {
+    diff_src = id_of_string (List.assoc "from" l);
+    diff_dst = id_of_string (List.assoc "to" l);
+    diff_val = get_cdata data;
+  }
+
 let make_link = make_title "pl"
 
 let make_langlink data =
@@ -309,6 +319,36 @@ let rec content_aux session revids invalid accu =
 let content session revs =
   let revids = List.map (fun r -> r.rev_id) revs in
   content_aux session revids SetID.empty MapID.empty
+
+(* Diffs *)
+
+let diff session src dst =
+  let dst = match dst with
+  | `ID id -> string_of_id id
+  | `PREVIOUS -> "prev"
+  | `CURRENT -> "cur"
+  | `NEXT -> "next"
+  in
+  let process xml =
+    let xml = find_by_tag "query" xml.Xml.children in
+(*     let badids = try_children "badrevids" xml in *)
+    let pages = try_children "pages" xml in
+    let page = match pages with
+    | Element p :: _ -> p
+    | _ -> raise (Call.API "diff: No such revid")
+    in
+    let revs = find_by_tag "revisions" page.Xml.children in
+    let rev = find_by_tag "rev" revs.Xml.children in
+    let diff = find_by_tag "diff" rev.Xml.children in
+    Call.return (make_diff diff)
+  in
+  let call = session#get_call [
+    "action", Some "query";
+    "prop", Some "revisions";
+    "revids", Some (string_of_id src);
+    "rvdiffto", Some dst;
+  ] in
+  Call.bind (Call.http call) process
 
 (* Generic parser of list results *)
 

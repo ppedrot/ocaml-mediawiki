@@ -22,6 +22,8 @@ type create_flag = [ `DEFAULT | `NO_CREATE | `CREATE_ONLY | `RECREATE ]
 
 type edit_status = [ `UPDATE | `NO_CHANGE | `NEW ]
 
+type relative_id = [ `ID of id | `PREVIOUS | `CURRENT | `NEXT ]
+
 type token = {
   token : string;
   token_type : token_type;
@@ -50,6 +52,12 @@ type revision = {
   rev_user : string;
   rev_comment : string;
   rev_minor : bool;
+}
+
+type diff = {
+  diff_src : id;
+  diff_dst : id;
+  diff_val : string;
 }
 
 type langlink = {

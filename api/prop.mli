@@ -30,6 +30,10 @@ val content : session -> revision list -> string MapID.t Call.t
 (** Associates to every revision its content by id.
     If a revision is invalid, it is not present in the answer. *)
 
+(** {1 Diffs} *)
+
+val diff : session -> id -> relative_id -> diff Call.t
+
 (** {1 Links} *)
 
 val links : session -> ?ns:namespace list -> page -> title list Call.t
