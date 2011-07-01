@@ -12,6 +12,7 @@ val tag : xml -> string
 val children : xml -> xml list
 val attribs : xml -> (string * string) list
 
+val get_cdata : elt -> string
 val find_by_tag : string -> xml list -> elt
 val find_by_attrib : string -> string -> xml list -> elt
 val try_children : string -> elt -> xml list

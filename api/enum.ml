@@ -2,7 +2,7 @@ open Xml
 open Utils
 open Datatypes
 open Options
-open Prop
+open Make
 
 (* Built-in lists *)
 

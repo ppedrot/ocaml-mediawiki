@@ -33,6 +33,18 @@ let try_children tag xml =
     xml.children
   with Not_found -> []
 
+let buf = Buffer.create 64
+
+let get_cdata data =
+  let iter = function
+  | CData s -> Buffer.add_string buf s
+  | _ -> ()
+  in
+  let () = List.iter iter data.children in
+  let ans = Buffer.contents buf in
+  let () = Buffer.clear buf in
+  ans
+
 let tag = function
 | Element elt -> elt.tag
 | _ -> invalid_arg "Xml.tag"

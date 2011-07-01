@@ -63,12 +63,6 @@ val categories : session -> page -> string list Call.t
 
 val external_links : session -> page -> string list Call.t
 
-(** {1 Library functions} *)
-
-val get_continue : Xml.elt -> string -> [> `CONTINUE of query | `STOP ]
-
-val make_title : string -> Xml.elt -> title
-
 (** {1 Debugging} *)
 
 val dummy_title : title
