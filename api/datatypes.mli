@@ -10,7 +10,7 @@ type language = string
 
 type user = string
 
-type token_type = [ `EDIT ]
+type token_type = [ `EDIT | `MOVE ]
 
 type redirect_filter = [ `ALL | `REDIRECT | `NOT_REDIRECT ]
 type user_filter = [ `ALL | `EXCLUDE of user | `ONLY of user ]
@@ -21,6 +21,7 @@ type watch_flag = [ `DEFAULT | `WATCH | `UNWATCH | `NO_CHANGE ]
 type create_flag = [ `DEFAULT | `NO_CREATE | `CREATE_ONLY | `RECREATE ]
 
 type edit_status = [ `UPDATE | `NO_CHANGE | `NEW ]
+type move_status = [ `REDIRECT_CREATED ]
 
 type relative_id = [ `ID of id | `PREVIOUS | `CURRENT | `NEXT ]
 
@@ -73,6 +74,13 @@ type namespace_info = {
   ns_case_sensitive : bool;
   ns_subpages : bool;
   ns_aliases : string list;
+}
+
+type user_info = {
+  user_id : id;
+  user_name : string;
+  user_anon : bool;
+  user_groups : string list;
 }
 
 type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]

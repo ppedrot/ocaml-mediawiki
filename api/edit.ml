@@ -65,3 +65,6 @@ let write_page (session : session) text ?summary ?(minor = `DEFAULT)
   in
   Call.bind (Call.http write_call) (fun xml ->
   Call.return (get_edit_result xml))
+
+(* TODO *)
+let move session = assert false

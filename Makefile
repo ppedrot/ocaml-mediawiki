@@ -7,6 +7,7 @@ OCAMLC=ocamlfind ocamlc
 OCAMLOPT=ocamlfind ocamlopt
 OCAMLDEP=ocamlfind ocamldep
 OCAMLMKLIB=ocamlfind ocamlmklib
+OCAMLDOC=ocamlfind ocamldoc
 
 INCLUDES=-I tools -I api
 
