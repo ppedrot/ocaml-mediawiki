@@ -49,7 +49,7 @@ let push_callback (p : pipeline) cb =
   let q = p#event_system in
   let group = q#new_group () in
   let f () = cb (); q#clear group in
-  q#once group 0. f
+  Unixqueue.epsilon q f
 
 let instantiate f =
   { result = Unserved; process = f; }
