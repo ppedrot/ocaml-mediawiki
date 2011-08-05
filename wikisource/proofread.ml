@@ -50,3 +50,17 @@ let get_quality hd =
       let ans = Pcre.extract ~rex:re5 ~full_match:false hd in
       Some (int_of_string ans.(0), ans.(1))
     with Not_found -> None
+
+let parse s =
+  let (hd, body, tl) = parse s in
+  let (lvl, usr) = match get_quality hd with
+  | None -> (-1, "")
+  | Some p -> p
+  in
+  {
+    pr_head = hd;
+    pr_text = body;
+    pr_foot = tl;
+    pr_level = lvl;
+    pr_user = usr;
+  }

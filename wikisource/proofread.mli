@@ -7,3 +7,5 @@ type proofread_page = {
   pr_level : int;
   pr_user : user;
 }
+
+val parse : string -> proofread_page
