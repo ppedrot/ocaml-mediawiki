@@ -81,6 +81,8 @@ type user_info = {
   user_name : string;
   user_anon : bool;
   user_groups : string list;
+  user_rights : string list;
+  user_editcount : int;
 }
 
 type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]

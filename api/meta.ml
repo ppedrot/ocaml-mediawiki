@@ -30,21 +30,24 @@ let userinfo session =
     let xml = find_by_tag "userinfo" xml.Xml.children in
     let attrs = xml.Xml.attribs in
     let groups = try_children "groups" xml in
-    let fold accu = function
-    | Xml.Element ({ tag = "g" } as elt) -> (get_cdata elt) :: accu
+    let rights = try_children "rights" xml in
+    let fold tag accu = function
+    | Xml.Element ({ tag = tag } as elt) -> (get_cdata elt) :: accu
     | _ -> accu
     in
     let info = {
       user_id = id_of_string (List.assoc "id" attrs);
       user_name = List.assoc "name" attrs;
       user_anon = List.mem_assoc "anon" attrs;
-      user_groups = List.fold_left fold [] groups;
+      user_groups = List.fold_left (fold "g") [] groups;
+      user_rights = List.fold_left (fold "r") [] rights;
+      user_editcount = int_of_string (List.assoc "editcount" attrs);
     } in
     Call.return info
   in
   let call = session#get_call [
     "action", Some "query";
     "meta", Some "userinfo";
-    "uiprop", Some "groups";
+    "uiprop", Some "groups|rights|editcount";
   ] in
   Call.bind (Call.http call) process
