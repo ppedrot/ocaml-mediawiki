@@ -9,7 +9,7 @@ OCAMLDEP=ocamlfind ocamldep
 OCAMLMKLIB=ocamlfind ocamlmklib
 OCAMLDOC=ocamlfind ocamldoc
 
-INCLUDES=-I tools -I api
+INCLUDES=-I tools -I api -I wikisource
 
 SYNTAX=camlp4o
 PACKAGES=threads expat pcre netstring netclient netcgi2 zip
@@ -28,6 +28,9 @@ OCAMLMKLIBFLAGS=$(INCLUDES)
 INTERFACE=tools/xml.mli api/call.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/prop.mli api/enum.mli api/edit.mli api/misc.mli api/meta.mli
 
 OBJS=tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
+
+TOOLS=wikisource/proofread.cmo
+OPTTOOLS=$(patsubst %.cmo,%.cmx, $(TOOLS))
 
 OPTOBJS=$(patsubst %.cmo,%.cmx, $(OBJS))
 
@@ -54,13 +57,13 @@ INSTALLED=META mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 
 all: dep runlib optlib
 
-run: $(OBJS)
+run: $(OBJS) $(TOOLS)
 
 runlib: run mediawiki.cmi
 	$(OCAMLC) $(OCAMLFLAGS) -pack $(OBJS) -o mediawiki.cmo
 	$(OCAMLC) $(OCAMLFLAGS) -a mediawiki.cmo -o mediawiki.cma
 
-opt: $(OPTOBJS)
+opt: $(OPTOBJS) $(OPTTOOLS)
 
 optlib: opt mediawiki.cmi 
 	$(OCAMLOPT) $(OCAMLFLAGS) -pack $(OPTOBJS) -o mediawiki.cmx
