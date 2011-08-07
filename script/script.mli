@@ -1,0 +1,3 @@
+open Datatypes
+
+exception Undefined

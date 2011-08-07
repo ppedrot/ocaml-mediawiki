@@ -9,7 +9,7 @@ OCAMLDEP=ocamlfind ocamldep
 OCAMLMKLIB=ocamlfind ocamlmklib
 OCAMLDOC=ocamlfind ocamldoc
 
-INCLUDES=-I tools -I api -I wikisource
+INCLUDES=-I tools -I api -I wikisource -I script
 
 SYNTAX=camlp4o
 PACKAGES=threads expat pcre netstring netclient netcgi2 zip
@@ -25,9 +25,9 @@ OCAMLMKLIBFLAGS=$(INCLUDES)
 # SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
 # API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
 
-INTERFACE=tools/xml.mli api/call.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/prop.mli api/enum.mli api/edit.mli api/misc.mli api/meta.mli wikisource/proofread.mli
+INTERFACE=tools/xml.mli api/call.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/prop.mli api/enum.mli api/edit.mli api/misc.mli api/meta.mli wikisource/proofread.mli script/script.mli
 
-OBJS=tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo wikisource/proofread.cmo
+OBJS=tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo wikisource/proofread.cmo script/script.cmo
 
 # TOOLS=wikisource/proofread.cmo
 # OPTTOOLS=$(patsubst %.cmo,%.cmx, $(TOOLS))

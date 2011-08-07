@@ -12,8 +12,8 @@ type proofread_page = {
   pr_user : string;
 }
 
-let re1 = "^<noinclude>([\\s\\S]*?)\n*<\\/noinclude>([\\s\\S]*)<noinclude>([\\s\\S]*?)<\\/noinclude>\n$"
-let re2 = "^<noinclude>([\\s\\S]*?)\n*<\\/noinclude>([\\s\\S]*?)\n$"
+let re1 = "^<noinclude>([\\s\\S]*?)\\n*<\\/noinclude>([\\s\\S]*)<noinclude>([\\s\\S]*?)<\\/noinclude>\\n*$"
+let re2 = "^<noinclude>([\\s\\S]*?)\\n*<\\/noinclude>([\\s\\S]*?)\\n*$"
 let re3 = "^([\\s\\S]*?)<noinclude>([\\s\\S]*?)<\\/noinclude>"
 let re4 = "<pagequality level=\"(\\d)\" user=\"(.*?)\"\\/>"
 let re5 = "\\{\\{PageQuality\\|(\\d)(\\|(.*?|))\\}\\}"
