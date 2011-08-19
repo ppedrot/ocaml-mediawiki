@@ -12,7 +12,7 @@ OCAMLDOC=ocamlfind ocamldoc
 INCLUDES=-I tools -I api -I wikisource -I script
 
 SYNTAX=camlp4o
-PACKAGES=threads expat pcre netstring netclient netcgi2 zip
+PACKAGES=threads batteries expat pcre netstring netclient netcgi2 zip
 
 # LIB=zip.cma expat.cma unix.cma pcre.cma equeue.cma netsys.cma netstring.cma netcgi.cma netclient.cma
 

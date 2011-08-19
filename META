@@ -1,7 +1,7 @@
 name="ocaml-mediawiki"
 version="0.1"
 description="A client for MediaWiki API"
-requires="zip, expat, netclient"
+requires="zip, expat, batteries, netclient"
 
 archive(byte)="mediawiki.cma"
 archive(native)="mediawiki.cmxa"

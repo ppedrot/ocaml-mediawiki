@@ -16,7 +16,7 @@ let string_of_id = Int64.to_string
 let string_of_title t = t.title_path
 let namespace_of_title t = t.title_namespace
 
-module OrderedId =
+(* module OrderedId =
 struct
   type t = id
   let compare = Int64.compare
@@ -31,7 +31,10 @@ end
 module MapID = Map.Make(OrderedId)
 module SetID = Set.Make(OrderedId)
 
-module MapString = Map.Make(OrderedString)
+module MapString = Map.Make(OrderedString) *)
+
+module Set = BatPSet
+module Map = BatPMap
 
 open Netdate
 

@@ -37,10 +37,10 @@ let rec of_titles_aux (session : session) titles accu =
     | Xml.Element { Xml.tag = "n"; Xml.attribs = attrs; } ->
       let nfrom = List.assoc "from" attrs in
       let nto = List.assoc "to" attrs in
-      MapString.add nto nfrom accu
+      Map.add nto nfrom accu
     | _ -> accu
     in
-    List.fold_left fold MapString.empty data
+    List.fold_left fold Map.empty data
   in
   let process xml =
     let xml = find_by_tag "query" xml.Xml.children in
@@ -54,15 +54,15 @@ let rec of_titles_aux (session : session) titles accu =
       let page = make_page p in
       let norm_title = List.assoc "title" p.Xml.attribs in
       let orig_title =
-        try MapString.find norm_title normalized
+        try Map.find norm_title normalized
         with Not_found -> norm_title
       in
-      MapString.add orig_title page accu
+      Map.add orig_title page accu
     | _ -> accu
     in
     let ans = List.fold_left fold accu pages in
     (* MediaWiki may only answer partially due to limits so retry *)
-    let redo = List.filter (fun t -> not (MapString.mem t ans)) titles in
+    let redo = List.filter (fun t -> not (Map.mem t ans)) titles in
     of_titles_aux session redo ans
   in
   if titles = [] then
@@ -77,7 +77,7 @@ let rec of_titles_aux (session : session) titles accu =
 
 let of_titles session titles =
   let () = List.iter check_title titles in
-  of_titles_aux session titles MapString.empty
+  of_titles_aux session titles Map.empty
 
 let rec of_pageids_aux session pageids accu =
   let process xml =
@@ -90,11 +90,11 @@ let rec of_pageids_aux session pageids accu =
     | Xml.Element ({Xml.tag = "page"} as p) ->
       let ans = make_page p in
       let id = id_of_string (List.assoc "pageid" p.Xml.attribs) in
-      MapID.add id ans accu
+      Map.add id ans accu
     | _ -> accu
     in
     let ans = List.fold_left fold accu pages in
-    let redo = List.filter (fun id -> not (MapID.mem id ans)) pageids in
+    let redo = List.filter (fun id -> not (Map.mem id ans)) pageids in
     of_pageids_aux session redo ans
   in
   if pageids = [] then
@@ -109,7 +109,7 @@ let rec of_pageids_aux session pageids accu =
     Call.bind (Call.http call) process
 
 let of_pageids session pageids =
-  of_pageids_aux session pageids MapID.empty
+  of_pageids_aux session pageids Map.empty
 
 (* Revisions *)
 
@@ -130,7 +130,7 @@ let rec of_revids_aux session revids invalid accu =
     let fold_badid accu = function
     | Xml.Element r ->
       let id = List.assoc "revid" r.Xml.attribs in
-      SetID.add (id_of_string id) accu
+      Set.add (id_of_string id) accu
     | _ -> accu
     in
     let fold_pages accu = function
@@ -140,7 +140,7 @@ let rec of_revids_aux session revids invalid accu =
       let fold accu = function
       | Xml.Element ({Xml.tag = "rev"} as r) ->
         let rev = make_revision pageid r in
-        MapID.add rev.rev_id rev accu
+        Map.add rev.rev_id rev accu
       | _ -> accu
       in
       List.fold_left fold accu revs
@@ -148,7 +148,7 @@ let rec of_revids_aux session revids invalid accu =
     in
     let accu = List.fold_left fold_pages accu pages in
     let invalid = List.fold_left fold_badid invalid badids in
-    let filter t = not (MapID.mem t accu) && not (SetID.mem t invalid) in
+    let filter t = not (Map.mem t accu) && not (Set.mem t invalid) in
     let redo = List.filter filter revids in
     of_revids_aux session redo invalid accu
   in
@@ -164,7 +164,7 @@ let rec of_revids_aux session revids invalid accu =
     Call.bind (Call.http call) process
 
 let of_revids session revids =
-  of_revids_aux session revids SetID.empty MapID.empty
+  of_revids_aux session revids Set.empty Map.empty
 
 (* Content *)
 
@@ -176,7 +176,7 @@ let rec content_aux session revids invalid accu =
     let fold_badid accu = function
     | Xml.Element ({Xml.tag = "rev"} as r) ->
       let id = List.assoc "revid" r.Xml.attribs in
-      SetID.add (id_of_string id) accu
+      Set.add (id_of_string id) accu
     | _ -> accu
     in
     let fold_pages accu = function
@@ -186,7 +186,7 @@ let rec content_aux session revids invalid accu =
       | Xml.Element ({Xml.tag = "rev"} as r) ->
         let content = make_content r in
         let id = List.assoc "revid" r.Xml.attribs in
-        MapID.add (id_of_string id) (content) accu
+        Map.add (id_of_string id) content accu
       | _ -> accu
       in
       List.fold_left fold accu revs
@@ -196,7 +196,7 @@ let rec content_aux session revids invalid accu =
     let accu = List.fold_left fold_pages accu pages in
     (* Get rid of invalid revids *)
     let invalid = List.fold_left fold_badid invalid badids in
-    let filter t = not (MapID.mem t accu) && not (SetID.mem t invalid) in
+    let filter t = not (Map.mem t accu) && not (Set.mem t invalid) in
     let redo = List.filter filter revids in
     content_aux session redo invalid accu
   in
@@ -214,7 +214,7 @@ let rec content_aux session revids invalid accu =
 
 let content session revs =
   let revids = List.map (fun r -> r.rev_id) revs in
-  content_aux session revids SetID.empty MapID.empty
+  content_aux session revids Set.empty Map.empty
 
 (* Diffs *)
 

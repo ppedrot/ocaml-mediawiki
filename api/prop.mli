@@ -3,12 +3,12 @@ open Datatypes
 
 (** {1 Page retrieving} *)
 
-val of_titles : session -> string list -> page_result MapString.t Call.t
+val of_titles : session -> string list -> (string, page_result) Map.t Call.t
 (** [of_titles s titles] associates to every title in [titles] the corresponding
     page. If the title is invalid, associates [Invalid]. If the page is missing,
     associates [Missing t] where [t] is the normalized form of the title. *)
 
-val of_pageids : session -> id list -> page_result MapID.t Call.t
+val of_pageids : session -> id list -> (id, page_result) Map.t Call.t
 (** [of_pageids s pageids] associates to every page id in [pageids] the 
     corresponding page. If the id is invalid or missing, returns [Invalid]. *)
 
@@ -19,14 +19,14 @@ val revisions : session -> ?fromid:id -> ?uptoid:id -> ?fromts:timestamp ->
 (** Returns the list of revisions of a given page. 
     Empty result if the page is invalid. *)
 
-val of_revids : session -> id list -> revision MapID.t Call.t
+val of_revids : session -> id list -> (id, revision) Map.t Call.t
 (** [of_revids s revids] associates to every revision id in [revids] the 
     corresponding revision. If the id is invalid or missing, it is absent from
     the answer. *)
 
 (** {1 Content} *)
 
-val content : session -> revision list -> string MapID.t Call.t
+val content : session -> revision list -> (id, string) Map.t Call.t
 (** Associates to every revision its content by id.
     If a revision is invalid, it is not present in the answer. *)
 
