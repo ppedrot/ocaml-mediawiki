@@ -10,8 +10,8 @@ let set_cookie hd cookies =
   let cookies = List.map map cookies in
   Nethttp.Header.set_cookie hd cookies
 
-let get_set_cookie s =
-  let nv_list =
+let get_set_cookie = Nethttp.Header.get_set_cookie
+(*  let nv_list =
     List.map
       (fun item ->
          ( match Netstring_pcre.string_match nv_re item 0 with
@@ -62,3 +62,4 @@ let get_set_cookie s =
 let get_set_cookie hd =
   let cookies = hd#multiple_field "Set-Cookie" in
   List.map get_set_cookie cookies
+*)

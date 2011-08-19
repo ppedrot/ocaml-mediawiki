@@ -48,11 +48,11 @@ let call site username (q : query) cookies =
   let () = hd#update_field "Accept-Encoding" "gzip" in
   call
 
-class virtual generic_session site =
+class virtual generic_session site cookies =
   object (self)
 
     (* FIXME : use non redundant structure *)
-    val mutable virtual cookies : Cookie.t list
+    val mutable cookies = cookies
     val mutable edit_token : token option = None
     val mutable valid = true
 
@@ -115,6 +115,16 @@ class virtual generic_session site =
 
     method private virtual set_invalid : unit -> unit
 
+    method save =
+    (* Save the cookies as a list of name/value pairs *)
+      let fold accu ck =
+        let open Nethttp in
+        let name = ck.cookie_name in
+        let value = ck.cookie_value in
+        (sprintf "%s\n%s\n" name value) ^ accu
+      in
+      List.fold_left fold "" cookies
+
   end
 
 let rec login site lg : session =
@@ -139,8 +149,7 @@ let rec login site lg : session =
     let cookies = Cookie.get_set_cookie call#response_header in
     object (self)
       initializer site#set_session self
-      val mutable cookies = cookies
-      inherit generic_session site
+      inherit generic_session site cookies
       method username = Some name
       method userid = id
       method private set_invalid () = valid <- false
@@ -164,9 +173,71 @@ let rec login site lg : session =
 
 let anonymous_login site =
   object (self)
-    val mutable cookies = []
-    inherit generic_session site
+    inherit generic_session site []
     method username = None
     method userid = 0L
     method private set_invalid () = ()
   end
+
+let relogin site s =
+  let rec split s off accu =
+    let i = try String.index_from s off '\n' with Not_found -> -1 in
+    if i < 0 then (String.sub s off (String.length s - off)) :: accu
+    else
+      let sub = String.sub s off (i - off) in
+      split s (succ i) (sub :: accu)
+  in
+  let cookies = List.rev (split s 0 []) in
+  let rec make_cookies accu = function
+  | name :: value :: cks ->
+    let ck = Nethttp.Cookie.make name value in
+    let ck = Nethttp.Cookie.to_netscape_cookie ck in
+    make_cookies (ck :: accu) cks
+  | _ -> accu
+  in
+  let cookies = make_cookies [] cookies in
+  let ans =
+    object (self)
+      val mutable username = None
+      val mutable userid = -1L
+      inherit generic_session site cookies
+
+      method private check_login () =
+        (* Check that we are actually logged by retrieving the username *)
+        let process xml =
+          let xml = find_by_tag "query" xml.Xml.children in
+          let xml = find_by_tag "userinfo" xml.Xml.children in
+          let attrs = xml.Xml.attribs in
+          let name = List.assoc "name" attrs in
+          let id = id_of_string (List.assoc "id" attrs) in
+          let is_anon = List.mem_assoc "anon" attrs in
+          Call.return (name, id, is_anon)
+        in
+        let call = self#get_call [
+          "action", Some "query";
+          "meta", Some "userinfo";
+        ] in
+        let call = Call.bind (Call.http call) process in
+        let request = Call.instantiate call in
+        let () = Call.enqueue request pipeline in
+        let () = pipeline#run () in
+        match Call.result request with
+        | Call.Successful (name, id, is_anon) ->
+          let () = username <- Some name in
+          let () = userid <- id in
+          if is_anon then failwith "Could not connect."
+        | _ -> assert false (* FIXME *)    
+
+      method initialize () = self#check_login ()
+
+      method private set_invalid () = valid <- false
+
+      method username = username
+
+      method userid = userid
+
+    end
+  in
+  (* Ensure that we are connected *)
+  let () = ans#initialize() in
+  (ans :> session)

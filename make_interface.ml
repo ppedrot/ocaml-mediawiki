@@ -1,5 +1,7 @@
 open Printf
 
+(* This is a script to dynamically construct the interface *)
+
 let copy chan_in chan_out =
   let break = ref true in
   while !break do

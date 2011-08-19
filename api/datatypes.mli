@@ -106,4 +106,5 @@ and session =
     method post_call : query -> Call.call
     method edit_token : token
     method logout : unit -> unit
+    method save : string
   end
