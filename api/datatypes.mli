@@ -87,16 +87,13 @@ type user_info = {
 
 type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]
 
-class type site =
-  object
-    method name : string
-    method api_address : string
-    method session : session option
-    method set_session : session -> unit
-    method clear_session : unit -> unit
-  end
+type site = {
+  site_name : string;
+  site_api : string;
+  site_lang : string;
+}
 
-and session =
+class type session =
   object
     method site : site
     method username : string option

@@ -34,7 +34,7 @@ let urlencode q =
 
 let call site username (q : query) cookies =
   let query = urlencode q in
-  let call = new post_raw site#api_address query in
+  let call = new post_raw site.site_api query in
   let hd = call#request_header `Base in
   let agent = match username with
   | None -> user_agent
@@ -134,7 +134,7 @@ let rec login site lg : session =
     "lgpassword", Some lg.login_password;
     "lgtoken", lg.login_token;
   ] in
-  let query = site#api_address ^ query in
+  let query = site.site_api ^ query in
   let call = new post query [] in
   let () = Cookie.set_cookie (call#request_header `Base) lg.login_cookies in
   let () = pipeline#add call in
@@ -148,7 +148,6 @@ let rec login site lg : session =
     let name = List.assoc "lgusername" data.attribs in
     let cookies = Cookie.get_set_cookie call#response_header in
     object (self)
-      initializer site#set_session self
       inherit generic_session site cookies
       method username = Some name
       method userid = id

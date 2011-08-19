@@ -1,3 +1,4 @@
 open Datatypes
 
-val fr_wikisource : site
+val wikisource : string -> site
+(** Create a wikisource site from a given language. *)
