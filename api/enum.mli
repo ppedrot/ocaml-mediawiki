@@ -23,6 +23,8 @@ val imageusage : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
   title -> title list Call.t
 
+(** {1 Search} *)
+
 val search : session ->
   ?ns:namespace list -> ?what:search_type -> ?rdr:bool ->
   string -> title list Call.t
@@ -40,7 +42,6 @@ val search : session ->
   deletedrevs
   logevents
   recentchanges
-  search
   tags
   usercontribs
   watchlist
