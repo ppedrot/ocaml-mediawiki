@@ -23,6 +23,10 @@ val imageusage : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
   title -> title list Call.t
 
+val search : session ->
+  ?ns:namespace list -> ?what:search_type -> ?rdr:bool ->
+  string -> title list Call.t
+
 (* TODO *)
 
 (*

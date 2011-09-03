@@ -83,3 +83,17 @@ let imageusage (session : session) ?(ns = [])
     @ (arg_bool "iuredirect" rdr) @ (arg_redirect_filter "iu" rdrfilter)
   in
   query_list "imageusage" "iu" (make_title "iu") session opts
+
+(* Search *)
+
+let search (session : session) ?(ns = []) ?(what = `TEXT) ?(rdr = false) text =
+  let what = match what with
+  | `TEXT -> "text"
+  | `TITLE -> "title"
+  in
+  let opts =
+    ["srwhat", Some what] @
+    ["srsearch", Some text] @
+    (arg_bool "srredirects" rdr)
+  in
+  query_list "search" "sr" (make_title "p") session opts

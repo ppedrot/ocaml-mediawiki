@@ -11,6 +11,7 @@ type language = string
 type user = string
 
 type token_type = [ `EDIT | `MOVE ]
+type search_type = [ `TITLE | `TEXT ]
 
 type redirect_filter = [ `ALL | `REDIRECT | `NOT_REDIRECT ]
 type user_filter = [ `ALL | `EXCLUDE of user | `ONLY of user ]
