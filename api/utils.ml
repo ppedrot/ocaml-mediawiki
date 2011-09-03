@@ -1,8 +1,6 @@
 open Printf
 open Datatypes
 
-type id = int64
-
 type mw_version = {
   mw_major : int;
   mw_minor : int;
@@ -15,23 +13,6 @@ let string_of_id = Int64.to_string
 
 let string_of_title t = t.title_path
 let namespace_of_title t = t.title_namespace
-
-(* module OrderedId =
-struct
-  type t = id
-  let compare = Int64.compare
-end
-
-module OrderedString =
-struct
-  type t = string
-  let compare = String.compare
-end
-
-module MapID = Map.Make(OrderedId)
-module SetID = Set.Make(OrderedId)
-
-module MapString = Map.Make(OrderedString) *)
 
 module Set = BatPSet
 module Map = BatPMap

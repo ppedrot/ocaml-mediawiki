@@ -1,10 +1,6 @@
 open Datatypes
 
-type login
-
-val get_login : string -> string -> login
-
-val login : site -> login -> session
+val login : site -> string -> string -> session
 (** Login with a username and a password. *)
 
 val anonymous_login : site -> session

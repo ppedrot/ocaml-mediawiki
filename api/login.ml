@@ -170,6 +170,9 @@ let rec login site lg : session =
   | err -> failwith ("Error: " ^ err)
   end
 
+let login site name pwd =
+  login site (get_login name pwd)
+
 let anonymous_login site =
   object (self)
     inherit generic_session site []

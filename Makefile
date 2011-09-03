@@ -82,7 +82,7 @@ install:
 	mkdir -p $(OCAMLLIB)/mediawiki
 	cp  $(INSTALLED) $(OCAMLLIB)/mediawiki
 
-mediawiki.mli:
+mediawiki.mli: $(INTERFACE)
 	ocaml make_interface.ml $(INTERFACE)
 
 include .depend 

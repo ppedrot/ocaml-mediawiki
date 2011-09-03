@@ -12,17 +12,12 @@ val string_of_id : id -> string
 module Set : (module type of BatPSet)
 module Map : (module type of BatPMap)
 
-(* module SetID : (Set.S with type elt = id) *)
-(* module MapID : (Map.S with type key = id) *)
-
 (** {1 Title manipulation} *)
 
 val string_of_title : title -> string
 val namespace_of_title : title -> namespace
 
 (** {1 Various stuff} *)
-
-(* module MapString : (Map.S with type key = string) *)
 
 val parse_timestamp : string -> timestamp
 
