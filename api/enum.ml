@@ -94,6 +94,7 @@ let search (session : session) ?(ns = []) ?(what = `TEXT) ?(rdr = false) text =
   let opts =
     ["srwhat", Some what] @
     ["srsearch", Some text] @
-    (arg_bool "srredirects" rdr)
+    (arg_bool "srredirects" rdr) @
+    (arg_namespaces "sr" ns)
   in
   query_list "search" "sr" (make_title "p") session opts
