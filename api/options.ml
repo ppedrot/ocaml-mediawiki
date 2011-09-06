@@ -10,6 +10,11 @@ let default opt def = match opt with
 let arg_title tag title =
   [tag ^ "title", Some (string_of_title title)]
 
+let arg_limit tag len =
+  if len < 0 then invalid_arg "arg_limit"
+  else
+    [tag ^ "limit", Some (string_of_int len)]
+
 let arg_namespace tag opt = match opt with
 | None -> []
 | Some ns -> [tag ^ "namespace", Some (string_of_int ns)]

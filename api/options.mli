@@ -6,6 +6,8 @@ open Datatypes
 
 val arg_title : string -> title -> query
 
+val arg_limit : string -> int -> query
+
 val arg_namespaces : string -> namespace list -> query
 
 val arg_timestamp : string -> timestamp option -> query

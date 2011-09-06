@@ -9,25 +9,25 @@ val random : session -> ?ns:namespace list -> ?rdr:bool ->
 
 val backlinks : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
-  title -> title list Call.t
+  ?limit:int -> title -> title list Call.t
 
 (** {1 Embedded pages} *)
 
 val embeddedin : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter ->
-  title -> title list Call.t
+  ?limit:int -> title -> title list Call.t
 
 (** {1 Image usage} *)
 
 val imageusage : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
-  title -> title list Call.t
+  ?limit:int -> title -> title list Call.t
 
 (** {1 Search} *)
 
 val search : session ->
   ?ns:namespace list -> ?what:search_type -> ?rdr:bool ->
-  string -> title list Call.t
+  ?limit:int -> string -> title list Call.t
 
 (* TODO *)
 
