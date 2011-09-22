@@ -12,18 +12,25 @@ type 'a node =
 
 and 'a t = 'a node Call.t
 
-let rec iter_aux f = function
+let rec iter f l = Call.bind l (iter_aux f)
+
+and iter_aux f = function
 | Stop -> Call.return ()
 | Continue (x, l) -> let () = f x in iter f l
 
-and iter f l = Call.bind l (iter_aux f)
+let rec fold f accu l = Call.bind l (fold_aux f accu)
 
-let rec to_list_aux = function
-| Stop -> Call.return []
+and fold_aux f accu = function
+| Stop -> Call.return accu
 | Continue (x, l) ->
-  Call.map (fun l -> x :: l) (to_list l)
+  Call.map (fun ans -> f ans x) (fold f accu l)
 
-and to_list l = Call.bind l to_list_aux
+let rec map f l = Call.bind l (map_aux f)
+
+and map_aux f = function
+| Stop -> Call.return Stop
+| Continue (x, l) -> Call.return (Continue (f x, map f l))
+
 
 (* Built-in lists *)
 

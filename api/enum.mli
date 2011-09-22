@@ -9,10 +9,12 @@ val iter : ('a -> unit) -> 'a t -> unit Call.t
 (** Asynchronous iteration over enumerations. Iteration is made callwise, so 
   it does not wait for the whole list to be available to finish. *)
 
-val to_list : 'a t -> 'a list Call.t
-(** [to_list enum] transforms a lazy enumeration into an effective call 
-  returning the whole list. The call evaluation may trigger a lot of API calls 
-  at once, hence making it quite costly. *)
+val map : ('a -> 'b) -> 'a t -> 'b t
+(** Asynchronous map over enumerations. This is a lazy operation. *)
+
+val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a Call.t
+(** [fold f accu enum] folds enum using [f]. This is eager: the call evaluation 
+  may trigger a lot of API calls at once, hence making it quite costly. *)
 
 (** {1 Random page} *)
 
