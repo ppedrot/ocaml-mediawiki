@@ -4,33 +4,6 @@ open Datatypes
 open Options
 open Make
 
-type 'a node =
-| Stop
-| Continue of 'a * 'a t
-(* Type of enumerations. Either nothing or a partial answer together with the 
-  call required to continue. *)
-
-and 'a t = 'a node Call.t
-
-let rec iter f l = Call.bind l (iter_aux f)
-
-and iter_aux f = function
-| Stop -> Call.return ()
-| Continue (x, l) -> let () = f x in iter f l
-
-let rec fold f accu l = Call.bind l (fold_aux f accu)
-
-and fold_aux f accu = function
-| Stop -> Call.return accu
-| Continue (x, l) ->
-  Call.map (fun ans -> f ans x) (fold f accu l)
-
-let rec map f l = Call.bind l (map_aux f)
-
-and map_aux f = function
-| Stop -> Call.return Stop
-| Continue (x, l) -> Call.return (Continue (f x, map f l))
-
 (* Built-in lists *)
 
 let rec query_list_aux prop tag make_fun session opts limit continue len =
@@ -51,13 +24,13 @@ let rec query_list_aux prop tag make_fun session opts limit continue len =
     let (pans, len) = fold [] len data in
     let continue = if limit <= len then `STOP else continue in
     let next = match continue with
-    | `STOP -> Call.return Stop
+    | `STOP -> Call.return Enum.Stop
     | `CONTINUE continue ->
       query_list_aux prop tag make_fun session opts limit continue len
     in
     let rec flatten accu = function
     | [] -> accu
-    | x :: l -> flatten (Call.return (Continue (x, accu))) l
+    | x :: l -> flatten (Call.return (Enum.Continue (x, accu))) l
     in
     flatten next pans
   in
