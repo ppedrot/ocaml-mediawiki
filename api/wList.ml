@@ -50,12 +50,32 @@ let rec query_list_aux prop tag make_fun session opts limit continue len =
 let query_list prop tag make_fun session opts limit =
   query_list_aux prop tag make_fun session opts limit [] 0
 
+(* All pages *)
+
+let allpages (session : session) ?ns
+  ?(rdrfilter = `ALL) ?minsize ?maxsize ?(order = `INCR) ?(limit = max_int) () =
+  let order = match order with
+  | `INCR -> "ascending"
+  | `DECR -> "descending"
+  in
+  let opts =
+    ["apdir", Some order] @
+    (arg_namespace "ap" ns) @
+    (arg_redirect_filter "ap" rdrfilter) @
+    ["apminsize", may string_of_int minsize] @
+    ["apmaxsize", may string_of_int maxsize]
+  in
+  query_list "allpages" "ap" (make_title "p") session opts limit
+
 (* Back links *)
 
 let backlinks (session : session) ?(ns = [])
     ?(rdrfilter = `ALL) ?(rdr = false) ?(limit = max_int) title =
-  let opts = (arg_title "bl" title) @ (arg_namespaces "bl" ns)
-    @ (arg_bool "blredirect" rdr) @ (arg_redirect_filter "bl" rdrfilter)
+  let opts =
+    (arg_title "bl" title) @
+    (arg_namespaces "bl" ns) @
+    (arg_bool "blredirect" rdr) @
+    (arg_redirect_filter "bl" rdrfilter)
   in
   (* FIXME : parse redirlinks *)
   query_list "backlinks" "bl" (make_title "bl") session opts limit
@@ -64,36 +84,23 @@ let backlinks (session : session) ?(ns = [])
 
 let embeddedin (session : session) ?(ns = []) ?(rdrfilter = `ALL) 
   ?(limit = max_int) title =
-  let opts = (arg_title "ei" title) @ (arg_namespaces "ei" ns)
-    @ (arg_redirect_filter "ei" rdrfilter)
+  let opts =
+    (arg_title "ei" title) @
+    (arg_namespaces "ei" ns) @
+    (arg_redirect_filter "ei" rdrfilter)
   in
   query_list "embeddedin" "ei" (make_title "ei") session opts limit
-
-(* Random pages *)
-
-let random (session : session) ?(ns = []) ?(rdr = false) () =
-  let process xml =
-    let xml = find_by_tag "query" xml.children in
-    let data = try_children "random" xml in
-    let page = match data with
-    | Element elt :: _ -> elt
-    | _ -> invalid_arg "Enum.random"
-    in
-    Call.return (make_title "page" page)
-  in
-  let call = session#get_call ([
-    "action", Some "query";
-    "list", Some "random";
-  ] @ (arg_namespaces "rn" ns) @ (arg_bool "rnredirect" rdr)) in
-  Call.bind (Call.http call) process
 
 (* Image usage *)
 
 let imageusage (session : session) ?(ns = [])
     ?(rdrfilter:redirect_filter = `ALL) ?(rdr = false) ?(limit = max_int)
     title =
-  let opts = (arg_title "iu" title) @ (arg_namespaces "iu" ns)
-    @ (arg_bool "iuredirect" rdr) @ (arg_redirect_filter "iu" rdrfilter)
+  let opts =
+    (arg_title "iu" title) @
+    (arg_namespaces "iu" ns)@
+    (arg_bool "iuredirect" rdr) @
+    (arg_redirect_filter "iu" rdrfilter)
   in
   query_list "imageusage" "iu" (make_title "iu") session opts limit
 

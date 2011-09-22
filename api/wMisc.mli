@@ -2,6 +2,10 @@
 
 open Datatypes
 
+val random : session -> ?ns:namespace list -> ?rdr:bool ->
+  unit -> title Call.t
+(** Choose a random page. *)
+
 val purge : session -> title list -> unit Call.t
 (** Purges a list of pages. *)
 

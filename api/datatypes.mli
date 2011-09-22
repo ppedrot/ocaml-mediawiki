@@ -1,5 +1,5 @@
 (**
-  {5 Generic datatypes of the library.}
+  {5 Generic datatypes}
 
   These are the datatypes used throughout the library.
 *)

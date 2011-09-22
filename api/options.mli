@@ -1,8 +1,12 @@
 open Datatypes
 
+(** Option manipulation *)
+
+val may : ('a -> 'b) -> 'a option -> 'b option
+
 (** Translation from options to queries *)
 
-(* val arg_namespace : string -> namespace option -> query *)
+val arg_namespace : string -> namespace option -> query
 
 val arg_title : string -> title -> query
 

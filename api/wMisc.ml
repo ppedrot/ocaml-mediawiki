@@ -1,5 +1,6 @@
 open Datatypes
 open Utils
+open Xml
 open Options
 
 let ignore r = Call.return ()
@@ -25,6 +26,8 @@ let emailuser (session : session) ?(subject = "") ?(text = "")
   let call = session#post_call query in
   Call.bind (Call.http call) ignore
 
+(* Watchlist management *)
+
 let watch (session : session) title =
   let query = [ "action", Some "watch" ] @ (arg_title "" title) in
   let call = session#post_call query in
@@ -37,3 +40,22 @@ let unwatch (session : session) title =
     @ (arg_title "" title) in
   let call = session#post_call query in
   Call.bind (Call.http call) ignore
+
+(* Random pages *)
+
+let random (session : session) ?(ns = []) ?(rdr = false) () =
+  let process xml =
+    let xml = find_by_tag "query" xml.children in
+    let data = try_children "random" xml in
+    let page = match data with
+    | Element elt :: _ -> elt
+    | _ -> invalid_arg "Enum.random"
+    in
+    Call.return (Make.make_title "page" page)
+  in
+  let call = session#get_call ([
+    "action", Some "query";
+    "list", Some "random";
+  ] @ (arg_namespaces "rn" ns) @ (arg_bool "rnredirect" rdr)) in
+  Call.bind (Call.http call) process
+

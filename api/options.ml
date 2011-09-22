@@ -7,6 +7,10 @@ let default opt def = match opt with
 | None -> def
 | Some x -> x
 
+let may f = function
+| None -> None
+| Some x -> Some (f x)
+
 let arg_title tag title =
   [tag ^ "title", Some (string_of_title title)]
 
