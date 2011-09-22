@@ -6,6 +6,11 @@ open Make
 
 (* Built-in lists *)
 
+(* A generic function to construct enumerations: [prop] is the name of the list
+  property, [tag] is its two-letter tag, [make_fun] is the function that creates
+  objects out of XML fragments, [opts] are the actual options passed to the call
+  and [limit] the limit size of the result. *)
+
 let rec query_list_aux prop tag make_fun session opts limit continue len =
   let process xml =
     let continue = get_continue xml prop in
@@ -44,42 +49,6 @@ let rec query_list_aux prop tag make_fun session opts limit continue len =
 
 let query_list prop tag make_fun session opts limit =
   query_list_aux prop tag make_fun session opts limit [] 0
-
-(*let rec query_list_aux prop tag make_fun session opts limit continue accu len =
-  let process xml =
-    let continue = get_continue xml prop in
-    let xml = find_by_tag "query" xml.children in
-    let data = try_children prop xml in
-    let rec fold accu len = function
-    | [] -> (accu, len)
-    | Xml.Element elt :: l ->
-      if limit <= len then (accu, len)
-      else fold (make_fun elt :: accu) (succ len) l
-    | _ :: l ->
-    (* Whenever the answer is not an element, discard it *)
-      fold accu len l
-    in
-    let (accu, len) = fold accu len data in
-    let continue = if limit <= len then `STOP else continue in 
-    query_list_aux prop tag make_fun session opts limit continue accu len
-  in
-  let query = [
-    "action", Some "query";
-    "list", Some prop;
-    tag ^ "limit", Some "max";
-  ] @ opts in
-  match continue with
-  | `STOP -> Call.return accu
-  | `START ->
-    let call = session#get_call query in
-    Call.bind (Call.http call) process
-  | `CONTINUE arg ->
-    let call = session#get_call (query @ arg) in
-    Call.bind (Call.http call) process*)
-
-(*let query_list prop tag make_fun session opts limit =
-  let ans = query_list_aux prop tag make_fun session opts limit `START [] 0 in
-  Call.bind ans (fun l -> Call.return (List.rev l))*)
 
 (* Back links *)
 

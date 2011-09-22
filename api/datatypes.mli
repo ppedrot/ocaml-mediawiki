@@ -26,6 +26,8 @@ type move_status = [ `REDIRECT_CREATED ]
 
 type relative_id = [ `ID of id | `PREVIOUS | `CURRENT | `NEXT ]
 
+type order = [ `INCR | `DECR ]
+
 type token = {
   token : string;
   token_type : token_type;

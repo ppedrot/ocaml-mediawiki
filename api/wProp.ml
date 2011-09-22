@@ -248,69 +248,84 @@ let diff session src dst =
 
 (* Generic parser of list results *)
 
-let rec generic_list_aux prop tag make_fun opts session pageid continue accu =
+let rec query_list_aux prop tag make_fun session pageid opts limit continue len =
   let process xml =
     let continue = get_continue xml prop in
-    let xml = find_by_tag "query" xml.Xml.children in
+    let xml = find_by_tag "query" xml.children in
     let pages = find_by_tag "pages" xml.Xml.children in
     let page = find_by_attrib "pageid" pageid pages.Xml.children in
     let data = try_children prop page in
-    let fold accu = function
-    | Xml.Element elt -> make_fun elt :: accu
-    | _ -> accu
+    let rec fold accu len = function
+    | [] -> (accu, len)
+    | Xml.Element elt :: l ->
+      if limit <= len then (accu, len)
+      else fold (make_fun elt :: accu) (succ len) l
+    | _ :: l ->
+    (* Whenever the answer is not an element, discard it *)
+      fold accu len l
     in
-    let accu = List.fold_left fold accu data in
-    generic_list_aux prop tag make_fun opts session pageid continue accu
+    (* elements are reversed *)
+    let (pans, len) = fold [] len data in
+    let continue = if limit <= len then `STOP else continue in
+    let next = match continue with
+    | `STOP -> Call.return Enum.Stop
+    | `CONTINUE continue ->
+      query_list_aux prop tag make_fun session pageid opts limit continue len
+    in
+    let rec flatten accu = function
+    | [] -> accu
+    | x :: l -> flatten (Call.return (Enum.Continue (x, accu))) l
+    in
+    flatten next pans
   in
   let query = [
     "action", Some "query";
     "prop", Some prop;
     tag ^ "limit", Some "max";
-    "pageids", Some pageid
-  ] @ opts in
-  match continue with
-  | `STOP -> Call.return accu
-  | `START ->
-    let call = session#get_call query in
-    Call.bind (Call.http call) process
-  | `CONTINUE arg ->
-    let call = session#get_call (query @ arg) in
-    Call.bind (Call.http call) process
+    "pageids", Some pageid;
+  ] @ opts @ continue in
+  let call = session#get_call query in
+  Call.bind (Call.http call) process
 
 (* [prop] is the name of the property, [tag] its short name, [make_fun] the
    function used to create data from XML *)
-let generic_list prop tag make_fun opts session page =
+let query_list prop tag make_fun session page opts limit =
   let pageid = string_of_id page.page_id in
-  generic_list_aux prop tag make_fun opts session pageid `START []
+  query_list_aux prop tag make_fun session pageid opts limit [] 0
 
 (* Revisions *)
 
-let revisions session ?fromid ?uptoid ?fromts ?uptots ?(usrfilter = `ALL) page =
-  let pageid = string_of_id page.page_id in
+let revisions session ?fromid ?uptoid ?fromts ?uptots ?(order = `DECR) 
+  ?(usrfilter = `ALL) ?(limit = max_int) page =
+  let order_arg = match order with
+  | `INCR -> ["rvdir", Some "newer"]
+  | `DECR -> ["rvdir", Some "older"]
+  in
   let opts = (arg_timestamp "rvend" fromts)
     @ (arg_timestamp "rvstart" uptots) @ (arg_id "rvendid" fromid)
-    @ (arg_id "rvstartid" uptoid) @ (arg_user_filter "rv" usrfilter) in
-  let make = make_revision page.page_id in
-  let call = generic_list_aux "revisions" "rv" make opts in
-  call session pageid `START []
+    @ (arg_id "rvstartid" uptoid) @ (arg_user_filter "rv" usrfilter)
+    @ order_arg
+  in
+  let make_fun = make_revision page.page_id in
+  query_list "revisions" "rv" make_fun session page opts limit
 
 (* Various stuff that return lists *)
 
-let links s ?(ns = []) =
-  generic_list "links" "pl" make_link (arg_namespaces "pl" ns) s
+let links s ?(ns = []) ?(limit = max_int) p =
+  query_list "links" "pl" make_link s p (arg_namespaces "pl" ns) limit
 
-let langlinks =
-  generic_list "langlinks" "ll" make_langlink []
+let langlinks s ?(limit = max_int) p =
+  query_list "langlinks" "ll" make_langlink s p [] limit
 
-let images =
-  generic_list "images" "im" make_imagelink []
+let images s ?(limit = max_int) p =
+  query_list "images" "im" make_imagelink s p [] limit
 
-let templates s ?(ns = []) =
-  generic_list "templates" "tl" make_templatelink (arg_namespaces "tl" ns) s
+let templates s ?(ns = []) ?(limit = max_int) p =
+  query_list "templates" "tl" make_templatelink s p (arg_namespaces "tl" ns) limit
 
-let categories =
-  generic_list "categories" "cl" make_category []
+let categories s ?(limit = max_int) p =
+  query_list "categories" "cl" make_category s p [] limit
 
-let external_links =
-  generic_list "extlinks" "el" make_extlink []
-
+(* FIXME: must use eloffset instead of elcontinue *)
+let external_links s ?(limit = max_int) p =
+  query_list "extlinks" "el" make_extlink s p [] limit

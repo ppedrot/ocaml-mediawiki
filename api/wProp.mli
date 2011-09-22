@@ -15,7 +15,8 @@ val of_pageids : session -> id list -> (id, page_result) Map.t Call.t
 (** {1 Revision retrieving} *)
 
 val revisions : session -> ?fromid:id -> ?uptoid:id -> ?fromts:timestamp ->
-  ?uptots:timestamp -> ?usrfilter:user_filter -> page -> revision list Call.t
+  ?uptots:timestamp -> ?order:order -> ?usrfilter:user_filter -> ?limit:int ->
+  page -> revision Enum.t
 (** Returns the list of revisions of a given page. 
     Empty result if the page is invalid. *)
 
@@ -36,32 +37,32 @@ val diff : session -> id -> relative_id -> diff Call.t
 
 (** {1 Links} *)
 
-val links : session -> ?ns:namespace list -> page -> title list Call.t
+val links : session -> ?ns:namespace list -> ?limit:int -> page -> title Enum.t
 (** Returns the list of link titles from a given page. *)
 
 (** {1 Language links} *)
 
-val langlinks : session -> page -> langlink list Call.t
+val langlinks : session -> ?limit:int -> page -> langlink Enum.t
 (** Return the list of interwiki links from a given page. *)
 
 (** {1 Images} *)
 
-val images : session -> page -> title list Call.t
+val images : session -> ?limit:int -> page -> title Enum.t
 (** Returns the list of image titles used on a given page. *)
 
 (** {1 Templates} *)
 
-val templates : session -> ?ns:namespace list -> page -> title list Call.t
+val templates : session -> ?ns:namespace list -> ?limit:int -> page -> title Enum.t
 (** Returns the list of template titles used on a given page. *)
 
 (** {1 Categories} *)
 
-val categories : session -> page -> string list Call.t
+val categories : session -> ?limit:int -> page -> string Enum.t
 (** Returns the list of categories to which pertains a given page. *)
 
 (** {1 External links} *)
 
-val external_links : session -> page -> string list Call.t
+val external_links : session -> ?limit:int -> page -> string Enum.t
 
 (** {1 Debugging} *)
 
