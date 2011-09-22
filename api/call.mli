@@ -32,6 +32,9 @@ val bind : 'a t -> ('a -> 'b t) -> 'b t
 (** [bind m f] is the monadic bind, i.e. it extracts the result from [m] and 
   applies [f] to it. *)
 
+val map : ('a -> 'b) -> 'a t -> 'b t
+(** [map f m] applies [f] to the underlying object of [m]. *)
+
 val http : call -> Xml.elt t
 (** [http c] embeds a low-level HTTP call. It returns the XML parsed from the 
   reply of the server. The call is copied, so this is purely functional. *)

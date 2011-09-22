@@ -4,9 +4,69 @@ open Datatypes
 open Options
 open Make
 
+type 'a node =
+| Stop
+| Continue of 'a * 'a t
+(* Type of enumerations. Either nothing or a partial answer together with the 
+  call required to continue. *)
+
+and 'a t = 'a node Call.t
+
+let rec iter_aux f = function
+| Stop -> Call.return ()
+| Continue (x, l) -> let () = f x in iter f l
+
+and iter f l = Call.bind l (iter_aux f)
+
+let rec to_list_aux = function
+| Stop -> Call.return []
+| Continue (x, l) ->
+  Call.map (fun l -> x :: l) (to_list l)
+
+and to_list l = Call.bind l to_list_aux
+
 (* Built-in lists *)
 
-let rec query_list_aux prop tag make_fun session opts limit continue accu len =
+let rec query_list_aux prop tag make_fun session opts limit continue len =
+  let process xml =
+    let continue = get_continue xml prop in
+    let xml = find_by_tag "query" xml.children in
+    let data = try_children prop xml in
+    let rec fold accu len = function
+    | [] -> (accu, len)
+    | Xml.Element elt :: l ->
+      if limit <= len then (accu, len)
+      else fold (make_fun elt :: accu) (succ len) l
+    | _ :: l ->
+    (* Whenever the answer is not an element, discard it *)
+      fold accu len l
+    in
+    (* elements are reversed *)
+    let (pans, len) = fold [] len data in
+    let continue = if limit <= len then `STOP else continue in
+    let next = match continue with
+    | `STOP -> Call.return Stop
+    | `CONTINUE continue ->
+      query_list_aux prop tag make_fun session opts limit continue len
+    in
+    let rec flatten accu = function
+    | [] -> accu
+    | x :: l -> flatten (Call.return (Continue (x, accu))) l
+    in
+    flatten next pans
+  in
+  let query = [
+    "action", Some "query";
+    "list", Some prop;
+    tag ^ "limit", Some "max";
+  ] @ opts @ continue in
+  let call = session#get_call query in
+  Call.bind (Call.http call) process
+
+let query_list prop tag make_fun session opts limit =
+  query_list_aux prop tag make_fun session opts limit [] 0
+
+(*let rec query_list_aux prop tag make_fun session opts limit continue accu len =
   let process xml =
     let continue = get_continue xml prop in
     let xml = find_by_tag "query" xml.children in
@@ -36,15 +96,11 @@ let rec query_list_aux prop tag make_fun session opts limit continue accu len =
     Call.bind (Call.http call) process
   | `CONTINUE arg ->
     let call = session#get_call (query @ arg) in
-    Call.bind (Call.http call) process
+    Call.bind (Call.http call) process*)
 
-let query_list prop tag make_fun session opts limit =
+(*let query_list prop tag make_fun session opts limit =
   let ans = query_list_aux prop tag make_fun session opts limit `START [] 0 in
-  Call.bind ans (fun l -> Call.return (List.rev l))
-
-(* AllImages *)
-
-let allimages (session : session) = assert false
+  Call.bind ans (fun l -> Call.return (List.rev l))*)
 
 (* Back links *)
 

@@ -30,6 +30,9 @@ let return x = K (fun get k -> k x)
 
 let unroll = function K f -> f
 
+let map f = function
+| K fk -> K (fun get k -> fk get (fun x -> k (f x)))
+
 let bind (m : 'a t) (f : 'a -> 'b t) : 'b t =
 match m with
 | K fk ->
