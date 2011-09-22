@@ -1,3 +1,5 @@
+(** {5 Login functions} *)
+
 open Datatypes
 
 val login : site -> string -> string -> session
@@ -7,4 +9,4 @@ val anonymous_login : site -> session
 (** Create an anonymous session. *)
 
 val relogin : site -> string -> session
-(** Login with session data obtained through [save] *)
+(** Login with session data obtained through {!Datatypes.session.save} *)

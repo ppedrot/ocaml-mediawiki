@@ -1,13 +1,16 @@
+(** {5 Abstract API calls}
+
+  A call of type ['a t] is an abstract object to model interaction with a
+  MediaWiki site. Basically, it embeds all the burden related to low-level
+  management of HTTP calls and XML parsing.
+*)
+
 open Http_client
 
-(** {1 Abstract definition of API calls} *)
-
-(** A call of type ['a t] is an abstract object to model interaction with a
-    MediaWiki site. Basically, it embeds all the burden related to low-level
-    management of HTTP calls and XML parsing. *)
-
 type call
+
 type 'a t
+
 type 'a request
 
 type error =
@@ -23,7 +26,7 @@ type 'a result =
 exception API of string
 (** Exception to be used by the API parsing functions. *)
 
-(** {1 Monadic handling of calls} *)
+(** {6 Monadic handling of calls} *)
 
 val return : 'a -> 'a t
 (** [return x] returns the constant call *)
@@ -39,13 +42,13 @@ val http : call -> Xml.elt t
 (** [http c] embeds a low-level HTTP call. It returns the XML parsed from the 
   reply of the server. The call is copied, so this is purely functional. *)
 
-(** {1 Casting HTTP calls into abstract calls} *)
+(** {6 Casting HTTP calls into abstract calls} *)
 
 val cast : http_call -> (Nethttp.cookie -> unit) -> call
-(** [cast c f] permits to deal with Set-Cookies headers of answers: [f] will be
-  fed with such cookies. *)
+(** [cast call f] permits to deal with Set-Cookies headers of answers: [f] will 
+  be fed with such cookies when [call] is processed. *)
 
-(** {1 Request manipulation and creation} *)
+(** {6 Request manipulation and creation} *)
 
 val instantiate : 'a t -> 'a request
 (** Instantiate any abstract call into an effective object that can be submitted

@@ -21,6 +21,7 @@ OCAMLOPTFLAGS=$(INCLUDES) -thread -w s $(addprefix -package , $(PACKAGES))
 OCAMLYACCFLAGS=
 OCAMLDEPFLAGS=$(INCLUDES)
 OCAMLMKLIBFLAGS=$(INCLUDES)
+OCAMLDOCFLAGS=$(INCLUDES) -thread $(addprefix -package , $(PACKAGES))
 
 # SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
 # API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
@@ -77,6 +78,11 @@ yacc:
 clean:
 	rm -f mediawiki.mli mediawiki.cmi mediawiki.cma mediawiki.cmxa mediawiki.a
 	rm -rf $(shell find . -name "*.cm[aoix]*") $(shell find . -name "*.o")
+	rm -rf doc
+
+doc: $(OBJS)
+	mkdir -p doc
+	$(OCAMLDOC) $(OCAMLDOCFLAGS) -d doc -html $(INTERFACE)
 
 install:
 	mkdir -p $(OCAMLLIB)/mediawiki

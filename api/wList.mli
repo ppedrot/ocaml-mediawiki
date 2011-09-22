@@ -1,29 +1,31 @@
+(** {5 List queries} *)
+
 open Datatypes
 
-(** {1 Random page} *)
+(** {6 Random page} *)
 
 val random : session -> ?ns:namespace list -> ?rdr:bool ->
   unit -> title Call.t
 
-(** {1 Backlinks} *)
+(** {6 Backlinks} *)
 
 val backlinks : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
   ?limit:int -> title -> title Enum.t
 
-(** {1 Embedded pages} *)
+(** {6 Embedded pages} *)
 
 val embeddedin : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter ->
   ?limit:int -> title -> title Enum.t
 
-(** {1 Image usage} *)
+(** {6 Image usage} *)
 
 val imageusage : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
   ?limit:int -> title -> title Enum.t
 
-(** {1 Search} *)
+(** {6 Search} *)
 
 val search : session ->
   ?ns:namespace list -> ?what:search_type -> ?rdr:bool ->

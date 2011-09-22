@@ -1,3 +1,5 @@
+(** {5 Meta-information queries} *)
+
 open Datatypes
 
 val namespaces : session -> namespace_info list Call.t

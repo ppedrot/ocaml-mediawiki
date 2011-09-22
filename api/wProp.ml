@@ -323,6 +323,7 @@ let images s ?(limit = max_int) p =
 let templates s ?(ns = []) ?(limit = max_int) p =
   query_list "templates" "tl" make_templatelink s p (arg_namespaces "tl" ns) limit
 
+(* FIXME: add a real parser and options *)
 let categories s ?(limit = max_int) p =
   query_list "categories" "cl" make_category s p [] limit
 

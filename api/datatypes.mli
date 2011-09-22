@@ -1,3 +1,9 @@
+(**
+  {5 Generic datatypes of the library.}
+
+  These are the datatypes used throughout the library.
+*)
+
 type id = int64
 
 type query = (string * string option) list
