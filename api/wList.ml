@@ -31,7 +31,6 @@ and map_aux f = function
 | Stop -> Call.return Stop
 | Continue (x, l) -> Call.return (Continue (f x, map f l))
 
-
 (* Built-in lists *)
 
 let rec query_list_aux prop tag make_fun session opts limit continue len =
