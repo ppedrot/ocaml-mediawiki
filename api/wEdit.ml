@@ -26,8 +26,34 @@ let get_edit_result xml =
 
 let get_move_result xml =
   let data = find_by_tag "move" xml.children in
-  if List.mem_assoc "redirectcreated" data.attribs then `REDIRECT_CREATED
-  else `REDIRECT_CREATED
+  let attrs = data.attribs in
+  let status =
+    if List.mem_assoc "redirectcreated" attrs then `REDIRECTED
+    else `NO_REDIRECT
+  in
+  let talk =
+    try
+      let pf = List.assoc "talkfrom" attrs in
+      let pt = List.assoc "talkto" attrs in
+      Some (pf, pt)
+    with _ -> None
+  in
+  let map = function
+  | Element { attribs = attrs } ->
+    let pf = List.assoc "from" attrs in
+    let pt = List.assoc "to" attrs in
+    (pf, pt)
+  | _ -> assert false
+  in
+  let subpage = try_children "subpages" data in
+  let subtalk = try_children "subpages-talk" data in
+  {
+    moved_status = status;
+    moved_page = (List.assoc "from" attrs, List.assoc "to" attrs);
+    moved_talk = talk;
+    moved_subpage = List.map map subpage;
+    moved_subtalk = List.map map subtalk;
+  }
 
 let write_title (session : session) ?summary ?(minor = `DEFAULT)
   ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) title text =
@@ -69,9 +95,8 @@ let write_page (session : session) ?summary ?(minor = `DEFAULT)
   in
   Call.map get_edit_result (Call.http write_call)
 
-(* TODO *)
 let move_page session ?summary ?(watch = `DEFAULT) ?(rdr = true) 
-  ?(move_subpages = true) ?(move_talk = true) ?(ignore_warnings = false)
+  ?(subpages = true) ?(talk = true) ?(ignore_warnings = false)
   page title =
   let token = session#edit_token in
   let move_call = session#post_call ([
@@ -83,8 +108,27 @@ let move_page session ?summary ?(watch = `DEFAULT) ?(rdr = true)
   ] @
     (arg_watch_flag watch) @
     (arg_bool "noredirect" (not rdr)) @
-    (arg_bool "movetalk" move_talk) @
-    (arg_bool "movesubpages" move_subpages)
+    (arg_bool "movetalk" talk) @
+    (arg_bool "movesubpages" subpages)
+  )
+  in
+  Call.map get_move_result (Call.http move_call)
+
+let move_title session ?summary ?(watch = `DEFAULT) ?(rdr = true) 
+  ?(subpages = true) ?(talk = true) ?(ignore_warnings = false)
+  src dst =
+  let token = session#edit_token in
+  let move_call = session#post_call ([
+    "action", Some "move";
+    "from", Some (string_of_title src);
+    "to", Some (string_of_title dst);
+    "reason", summary;
+    "token", Some token.token;
+  ] @
+    (arg_watch_flag watch) @
+    (arg_bool "noredirect" (not rdr)) @
+    (arg_bool "movetalk" talk) @
+    (arg_bool "movesubpages" subpages)
   )
   in
   Call.map get_move_result (Call.http move_call)

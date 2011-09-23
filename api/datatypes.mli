@@ -28,7 +28,7 @@ type watch_flag = [ `DEFAULT | `WATCH | `UNWATCH | `NO_CHANGE ]
 type create_flag = [ `DEFAULT | `NO_CREATE | `CREATE_ONLY | `RECREATE ]
 
 type edit_status = [ `UPDATE | `NO_CHANGE | `NEW ]
-type move_status = [ `REDIRECT_CREATED ]
+type move_status = [ `NO_REDIRECT | `REDIRECTED ]
 
 type relative_id = [ `ID of id | `PREVIOUS | `CURRENT | `NEXT ]
 
@@ -95,6 +95,14 @@ type user_info = {
 }
 
 type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]
+
+type move_result = {
+  moved_status : move_status;
+  moved_page : (string * string);
+  moved_talk : (string * string) option;
+  moved_subpage : (string * string) list;
+  moved_subtalk : (string * string) list;
+}
 
 type site = {
   site_name : string;
