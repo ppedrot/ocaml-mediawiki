@@ -26,6 +26,8 @@ val arg_create_flag : create_flag -> query
 
 val arg_redirect_filter : string -> redirect_filter -> query
 
+val arg_redirect_filter_alt : string -> redirect_filter -> query
+
 val arg_user_filter : string -> user_filter -> query
 
 val arg_bool : string -> bool -> query

@@ -7,8 +7,9 @@
 open Datatypes
 
 val allpages : session ->
-  ?ns:namespace -> ?rdrfilter:redirect_filter -> ?minsize:int ->
-  ?maxsize:int -> ?order:order -> ?limit:int -> unit -> title Enum.t
+  ?ns:namespace -> ?from:string -> ?upto:string -> ?prefix:string ->
+  ?rdrfilter:redirect_filter -> ?minsize:int -> ?maxsize:int -> ?order:order -> 
+  ?limit:int -> unit -> title Enum.t
 (** Enumerate all pages. *)
 
 val backlinks : session ->

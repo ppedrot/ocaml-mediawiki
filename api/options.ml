@@ -59,6 +59,11 @@ let arg_redirect_filter tag (filter : redirect_filter) = match filter with
 | `REDIRECT -> [tag ^ "redirectfilter", Some "redirects"]
 | `NOT_REDIRECT -> [tag ^ "redirectfilter", Some "nonredirects"]
 
+let arg_redirect_filter_alt tag (filter : redirect_filter) = match filter with
+| `ALL -> [tag ^ "filterredir", Some "all"]
+| `REDIRECT -> [tag ^ "filterredir", Some "redirects"]
+| `NOT_REDIRECT -> [tag ^ "filterredir", Some "nonredirects"]
+
 let arg_user_filter tag (filter : user_filter) = match filter with
 | `ALL -> []
 | `EXCLUDE user -> [tag ^ "excludeuser", Some user]

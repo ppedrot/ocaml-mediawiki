@@ -52,16 +52,20 @@ let query_list prop tag make_fun session opts limit =
 
 (* All pages *)
 
-let allpages (session : session) ?ns
-  ?(rdrfilter = `ALL) ?minsize ?maxsize ?(order = `INCR) ?(limit = max_int) () =
+let allpages (session : session) ?ns ?from ?upto ?prefix
+  ?(rdrfilter = `ALL) ?minsize ?maxsize ?(order = `INCR) 
+  ?(limit = max_int) () =
   let order = match order with
   | `INCR -> "ascending"
   | `DECR -> "descending"
   in
   let opts =
     ["apdir", Some order] @
+    ["apfrom", from] @
+    ["apto", upto] @
+    ["apprefix", prefix] @
     (arg_namespace "ap" ns) @
-    (arg_redirect_filter "ap" rdrfilter) @
+    (arg_redirect_filter_alt "ap" rdrfilter) @
     ["apminsize", may string_of_int minsize] @
     ["apmaxsize", may string_of_int maxsize]
   in
