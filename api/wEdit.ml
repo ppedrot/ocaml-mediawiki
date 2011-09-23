@@ -24,8 +24,13 @@ let get_edit_result xml =
   | "Failure" -> raise (Call.API "Failure")
   | _ -> assert false
 
-let write_title (session : session) text ?summary ?(minor = `DEFAULT)
-  ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) title =
+let get_move_result xml =
+  let data = find_by_tag "move" xml.children in
+  if List.mem_assoc "redirectcreated" data.attribs then `REDIRECT_CREATED
+  else `REDIRECT_CREATED
+
+let write_title (session : session) ?summary ?(minor = `DEFAULT)
+  ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) title text =
   let token = session#edit_token in
   let digest = Digest.to_hex (Digest.string text) in
   let write_call = session#post_call ([
@@ -38,11 +43,10 @@ let write_title (session : session) text ?summary ?(minor = `DEFAULT)
   ] @ (arg_minor_flag minor) @ (arg_watch_flag watch) @ (arg_bool "bot" bot)
     @ (arg_create_flag create))
   in
-  Call.bind (Call.http write_call) (fun xml ->
-  Call.return (get_edit_result xml))
+  Call.map get_edit_result (Call.http write_call)
 
-let write_page (session : session) text ?summary ?(minor = `DEFAULT) 
-  ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) page =
+let write_page (session : session) ?summary ?(minor = `DEFAULT) 
+  ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) page text =
   let token = session#edit_token in
   let digest = Digest.to_hex (Digest.string text) in
 (*  let ts_call = session#get_call [
@@ -63,8 +67,25 @@ let write_page (session : session) text ?summary ?(minor = `DEFAULT)
   ] @ (arg_minor_flag minor) @ (arg_watch_flag watch) @ (arg_bool "bot" bot)
     @ (arg_create_flag create))
   in
-  Call.bind (Call.http write_call) (fun xml ->
-  Call.return (get_edit_result xml))
+  Call.map get_edit_result (Call.http write_call)
 
 (* TODO *)
-let move session = assert false
+let move_page session ?summary ?(watch = `DEFAULT) ?(rdr = true) 
+  ?(move_subpages = true) ?(move_talk = true) ?(ignore_warnings = false)
+  page title =
+  let token = session#edit_token in
+  let move_call = session#post_call ([
+    "action", Some "move";
+    "from", Some (string_of_title page.page_title);
+    "to", Some (string_of_title title);
+    "reason", summary;
+    "token", Some token.token;
+  ] @
+    (arg_watch_flag watch) @
+    (arg_bool "noredirect" (not rdr)) @
+    (arg_bool "movetalk" move_talk) @
+    (arg_bool "movesubpages" move_subpages)
+  )
+  in
+  Call.map get_move_result (Call.http move_call)
+
