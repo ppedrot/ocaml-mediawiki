@@ -27,7 +27,7 @@ let encode s = Netencoding.Url.encode ~plus:false s
 
 let urlencode q =
   let map = function
-  | (v, None) -> sprintf "&%s" (encode v)
+  | (v, None) -> sprintf "&%s=1" (encode v)
   | (v, Some arg) -> sprintf "&%s=%s" (encode v) (encode arg)
   in
   String.concat "" (List.map map q) 
