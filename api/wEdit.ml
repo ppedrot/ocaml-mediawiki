@@ -55,6 +55,9 @@ let get_move_result xml =
     moved_subtalk = List.map map subtalk;
   }
 
+let get_delete_result xml =
+  let _ = find_by_tag "delete" xml.children in ()
+
 let write_title (session : session) ?summary ?(minor = `DEFAULT)
   ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) title text =
   let token = session#edit_token in
@@ -133,3 +136,15 @@ let move_title session ?summary ?(watch = `DEFAULT) ?(rdr = true)
   in
   Call.map get_move_result (Call.http move_call)
 
+let delete_title session ?summary ?(watch = `DEFAULT) title =
+  let token = session#edit_token in
+  let delete_call = session#post_call ([
+    "action", Some "delete";
+    "title", Some (string_of_title title);
+    "reason", summary;
+    "token", Some token.token;
+  ] @
+    (arg_watch_flag watch)
+  )
+  in
+  Call.map get_delete_result (Call.http delete_call)

@@ -10,7 +10,7 @@ val write_page : session -> ?summary:string -> ?minor:minor_flag ->
 (** Write a given page and return the status. This function checks that there
     is no conflict thanks to the last timestamp of the page.
 
-  @param summary Reason of the move. Default: [""]
+  @param summary Summary of the edit. Default: empty
   @param minor Set the minor flag. Default: [`DEFAULT]
   @param watch Add the page to your watchlist. Default: [`DEFAULT]
   @param bot Set the bot flag. Default: [false]
@@ -29,7 +29,7 @@ val move_page : session -> ?summary:string -> ?watch:watch_flag -> ?rdr:bool ->
   page -> title -> move_result Call.t
 (** Move a page to a given title.
 
-  @param summary Reason of the move. Default: [""]
+  @param summary Reason of the move. Default: empty
   @param watch Add the page to your watchlist. Default: [`DEFAULT]
   @param rdr Create the redirect. Default: [true]
   @param subpages Also move the subpages. Default: [true]
@@ -40,4 +40,14 @@ val move_page : session -> ?summary:string -> ?watch:watch_flag -> ?rdr:bool ->
 val move_title : session -> ?summary:string -> ?watch:watch_flag -> ?rdr:bool -> 
   ?subpages:bool -> ?talk:bool -> ?ignore_warnings:bool ->
   title -> title -> move_result Call.t
-(** As for {!write_page} but with a title only. *)
+(** As for {!move_page} but with a title only. *)
+
+(** {6 Deleting pages} *)
+
+val delete_title : session -> ?summary:string -> ?watch:watch_flag -> 
+  title -> unit Call.t
+(** Delete a given page.
+
+  @param summary Reason for the deletion. Default: empty
+  @param watch Add the page to your watchlist. Default: [`DEFAULT]
+*)
