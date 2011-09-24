@@ -61,13 +61,13 @@ let allpages (session : session) ?ns ?from ?upto ?prefix
   in
   let opts =
     ["apdir", Some order] @
-    ["apfrom", from] @
-    ["apto", upto] @
-    ["apprefix", prefix] @
+    (arg_opt "apfrom" from) @
+    (arg_opt "apto" upto) @
+    (arg_opt "apprefix" prefix) @
     (arg_namespace "ap" ns) @
     (arg_redirect_filter_alt "ap" rdrfilter) @
-    ["apminsize", may string_of_int minsize] @
-    ["apmaxsize", may string_of_int maxsize]
+    (arg_opt "apminsize" (may string_of_int minsize)) @
+    (arg_opt "apmaxsize" (may string_of_int maxsize))
   in
   query_list "allpages" "ap" (make_title "p") session opts limit
 

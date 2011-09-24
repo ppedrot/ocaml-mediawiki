@@ -11,6 +11,10 @@ let may f = function
 | None -> None
 | Some x -> Some (f x)
 
+let arg_opt key = function
+| None -> []
+| Some value -> [key, Some value]
+
 let arg_title tag title =
   [tag ^ "title", Some (string_of_title title)]
 
@@ -37,10 +41,11 @@ let arg_id tag = function
 | None -> []
 | Some id -> [tag, Some (string_of_id id)]
 
+(* API is bugged so we must put an argument here *)
 let arg_minor_flag (flag : minor_flag) = match flag with
 | `DEFAULT -> []
-| `MINOR -> ["minor", None]
-| `NOT_MINOR -> ["notminor", None]
+| `MINOR -> ["minor", Some ""]
+| `NOT_MINOR -> ["notminor", Some ""]
 
 let arg_watch_flag (flag : watch_flag) = match flag with
 | `DEFAULT -> ["watchlist", Some "preferences"]
@@ -48,11 +53,12 @@ let arg_watch_flag (flag : watch_flag) = match flag with
 | `UNWATCH -> ["watchlist", Some "unwatch"]
 | `WATCH -> ["watchlist", Some "watch"]
 
+(* API is bugged so we must put an argument here *)
 let arg_create_flag (flag : create_flag) = match flag with
 | `DEFAULT -> []
-| `NO_CREATE -> ["nocreate", None]
-| `CREATE_ONLY -> ["createonly", None]
-| `RECREATE -> ["recreate", None]
+| `NO_CREATE -> ["nocreate", Some ""]
+| `CREATE_ONLY -> ["createonly", Some ""]
+| `RECREATE -> ["recreate", Some ""]
 
 let arg_redirect_filter tag (filter : redirect_filter) = match filter with
 | `ALL -> [tag ^ "redirectfilter", Some "all"]
@@ -69,4 +75,5 @@ let arg_user_filter tag (filter : user_filter) = match filter with
 | `EXCLUDE user -> [tag ^ "excludeuser", Some user]
 | `ONLY user -> [tag ^ "user", Some user]
 
-let arg_bool tag b = if b then [tag, None] else []
+(* API is bugged so we must put an argument here *)
+let arg_bool tag b = if b then [tag, Some ""] else []

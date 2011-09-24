@@ -66,11 +66,14 @@ let write_title (session : session) ?summary ?(minor = `DEFAULT)
     "action", Some "edit";
     "title", Some (string_of_title title);
     "text", Some text;
-    "summary", summary;
     "token", Some token.token;
     "md5", Some digest;
-  ] @ (arg_minor_flag minor) @ (arg_watch_flag watch) @ (arg_bool "bot" bot)
-    @ (arg_create_flag create))
+  ] @
+    (arg_opt "summary" summary) @
+    (arg_minor_flag minor) @
+    (arg_watch_flag watch) @
+    (arg_bool "bot" bot) @
+    (arg_create_flag create))
   in
   Call.map get_edit_result (Call.http write_call)
 
@@ -90,11 +93,14 @@ let write_page (session : session) ?summary ?(minor = `DEFAULT)
     "title", Some (string_of_title page.page_title);
     "basetimestamp", Some ts;
     "text", Some text;
-    "summary", summary;
     "token", Some token.token;
     "md5", Some digest;
-  ] @ (arg_minor_flag minor) @ (arg_watch_flag watch) @ (arg_bool "bot" bot)
-    @ (arg_create_flag create))
+  ] @
+    (arg_opt "summary" summary) @
+    (arg_minor_flag minor) @
+    (arg_watch_flag watch) @
+    (arg_bool "bot" bot) @
+    (arg_create_flag create))
   in
   Call.map get_edit_result (Call.http write_call)
 
@@ -106,9 +112,9 @@ let move_page session ?summary ?(watch = `DEFAULT) ?(rdr = true)
     "action", Some "move";
     "from", Some (string_of_title page.page_title);
     "to", Some (string_of_title title);
-    "reason", summary;
     "token", Some token.token;
   ] @
+    (arg_opt "reason" summary) @
     (arg_watch_flag watch) @
     (arg_bool "noredirect" (not rdr)) @
     (arg_bool "movetalk" talk) @
@@ -125,9 +131,9 @@ let move_title session ?summary ?(watch = `DEFAULT) ?(rdr = true)
     "action", Some "move";
     "from", Some (string_of_title src);
     "to", Some (string_of_title dst);
-    "reason", summary;
     "token", Some token.token;
   ] @
+    (arg_opt "reason" summary) @
     (arg_watch_flag watch) @
     (arg_bool "noredirect" (not rdr)) @
     (arg_bool "movetalk" talk) @
@@ -141,9 +147,9 @@ let delete_title session ?summary ?(watch = `DEFAULT) title =
   let delete_call = session#post_call ([
     "action", Some "delete";
     "title", Some (string_of_title title);
-    "reason", summary;
     "token", Some token.token;
   ] @
+    (arg_opt "reason" summary) @
     (arg_watch_flag watch)
   )
   in
