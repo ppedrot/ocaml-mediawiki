@@ -1,4 +1,8 @@
-(** {5 Write queries}*)
+(** {5 Edit queries}
+
+  These queries affects the mediawiki database.
+
+*)
 
 open Datatypes
 
