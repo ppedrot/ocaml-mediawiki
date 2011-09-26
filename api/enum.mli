@@ -22,3 +22,9 @@ val map : ('a -> 'b) -> 'a t -> 'b t
 val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a Call.t
 (** [fold f accu enum] folds enum using [f]. This is eager: the call evaluation 
   may trigger a lot of API calls at once, hence making it quite costly. *)
+
+val append : 'a t -> 'a t -> 'a t
+(** Append two enumerations. Lazy. *)
+
+val filter : ('a -> bool Call.t) -> 'a t -> 'a t
+(** Asynchronous filtering of enumerations. *)
