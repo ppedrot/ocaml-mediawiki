@@ -71,6 +71,23 @@ let allpages (session : session) ?ns ?from ?upto ?prefix
   in
   query_list "allpages" "ap" (make_title "p") session opts limit
 
+(* All categories *)
+
+let allcategories (session : session) ?from ?upto ?prefix ?(order = `INCR) 
+  ?(limit = max_int) () =
+  let order = match order with
+  | `INCR -> "ascending"
+  | `DECR -> "descending"
+  in
+  let opts =
+    ["acdir", Some order] @
+    ["acprop", Some "size|hidden"] @
+    (arg_opt "acfrom" from) @
+    (arg_opt "acto" upto) @
+    (arg_opt "acprefix" prefix)
+  in
+  query_list "allcategories" "ac" make_catinfo session opts limit
+
 (* Back links *)
 
 let backlinks (session : session) ?(ns = [])
@@ -94,6 +111,18 @@ let embeddedin (session : session) ?(ns = []) ?(rdrfilter = `ALL)
     (arg_redirect_filter "ei" rdrfilter)
   in
   query_list "embeddedin" "ei" (make_title "ei") session opts limit
+
+(* External URL usage *)
+
+(* FIXME: add protocol handling *)
+let exturlusage (session : session) ?(ns = []) ?(limit = max_int) url =
+  let opts = ["euquery", Some url] @ (arg_namespaces "eu" ns) in
+  let make_url elt =
+    let title = make_title "eu" elt in
+    let url = List.assoc "url" elt.attribs in
+    (title, url)
+  in
+  query_list "exturlusage" "eu" make_url session opts limit
 
 (* Image usage *)
 

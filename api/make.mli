@@ -23,6 +23,8 @@ val make_templatelink : Xml.elt -> title
 
 val make_category : Xml.elt -> string
 
+val make_catinfo : Xml.elt -> category_info
+
 val make_content : Xml.elt -> string
 
 val make_nsinfo : Xml.xml list -> Xml.elt -> namespace_info

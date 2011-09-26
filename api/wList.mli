@@ -23,6 +23,18 @@ val allpages : session ->
   @param limit Maximum number of pages to enumerate. Default: [max_int]
 *)
 
+val allcategories : session ->
+  ?from:string -> ?upto:string -> ?prefix:string -> ?order:order -> 
+  ?limit:int -> unit -> category_info Enum.t
+(** Enumerate all pages.
+
+  @param from The category from which to start the enumeration. Default: none
+  @param upto The category up to which do the enumeration. Default: none
+  @param prefix Only enumerate category that starts with this prefix. Default: empty
+  @param order Order of the enumeration. Default: [`INCR]
+  @param limit Maximum number of pages to enumerate. Default: [max_int]
+*)
+
 val backlinks : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
   ?limit:int -> title -> title Enum.t
@@ -41,6 +53,14 @@ val embeddedin : session ->
 
   @param ns Namespaces to enumerate. Default: all
   @param rdrfilter Enumerate redirects. Default: [`ALL]
+  @param limit Maximum number of pages to enumerate. Default: [max_int]
+*)
+
+val exturlusage : session ->
+  ?ns:namespace list -> ?limit:int -> string -> (title * string) Enum.t
+(** Enumerate all pages using a given URL pattern.
+
+  @param ns Namespaces to enumerate. Default: all
   @param limit Maximum number of pages to enumerate. Default: [max_int]
 *)
 
@@ -82,7 +102,6 @@ val search : session ->
   usercontribs
   watchlist
   watchlistraw
-  exturlusage
   users
   protectedtitles
 *)

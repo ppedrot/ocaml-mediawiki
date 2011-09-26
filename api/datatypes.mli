@@ -94,6 +94,15 @@ type user_info = {
   user_editcount : int;
 }
 
+type category_info = {
+  cat_name : string;
+  cat_size : int;
+  cat_pages : int;
+  cat_files : int;
+  cat_subcats : int;
+  cat_hidden : bool;
+}
+
 type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]
 
 type move_result = {

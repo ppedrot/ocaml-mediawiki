@@ -78,6 +78,23 @@ let make_category data =
     raise (Call.API "Invalid argument: make_category");
   List.assoc "title" data.Xml.attribs
 
+let make_catinfo data =
+  if data.Xml.tag <> "c" then
+    raise (Call.API "Invalid argument: make_category_info");
+  let l = data.Xml.attribs in
+  let name = get_cdata data in
+  let size = List.assoc "size" l in
+  let pages = List.assoc "pages" l in
+  let files = List.assoc "files" l in
+  let subcats = List.assoc "subcats" l in {
+    cat_name = name;
+    cat_size = int_of_string size;
+    cat_pages = int_of_string pages;
+    cat_files = int_of_string files;
+    cat_subcats = int_of_string subcats;
+    cat_hidden = List.mem_assoc "hidden" l;
+  }
+
 let make_content data =
   if data.Xml.tag <> "rev" then
     raise (Call.API "Invalid argument: make_content");
