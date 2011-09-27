@@ -75,6 +75,21 @@ val imageusage : session ->
   @param limit Maximum number of pages to enumerate. Default: [max_int]
 *)
 
+val recentchanges : session ->
+  ?fromts:timestamp -> ?uptots:timestamp -> ?ns:namespace list -> 
+  ?order:order -> ?usrfilter:user_filter -> ?limit:int -> 
+  unit -> rc_info Enum.t
+(** List all recent changes.
+
+  @param fromts Timestamp to enumerate from. Default: none
+  @param uptots Timestamp to enumerate up to. Default: none
+  @param ns Namespaces to enumerate. Default: all
+  @param order Order of the enumeration. Default: [`DECR]
+  @param usrfilter Display or exclude a particular user. Default: [`ALL]
+  @param limit Maximum number of pages to enumerate. Default: [max_int]  
+*)
+
+
 val search : session ->
   ?ns:namespace list -> ?what:search_type -> ?rdr:bool ->
   ?limit:int -> string -> title Enum.t
@@ -91,13 +106,11 @@ val search : session ->
 (*
   allimages
   alllinks
-  allcategories
   allusers
   blocks
   categorymembers
   deletedrevs
   logevents
-  recentchanges
   tags
   usercontribs
   watchlist

@@ -18,6 +18,7 @@ type user = string
 
 type token_type = [ `EDIT | `MOVE ]
 type search_type = [ `TITLE | `TEXT ]
+type rc_type = [ `EDIT | `LOG | `NEW ]
 
 type redirect_filter = [ `ALL | `REDIRECT | `NOT_REDIRECT ]
 type user_filter = [ `ALL | `EXCLUDE of user | `ONLY of user ]
@@ -101,6 +102,21 @@ type category_info = {
   cat_files : int;
   cat_subcats : int;
   cat_hidden : bool;
+}
+
+type rc_info = {
+  rc_id : id;
+  rc_type : rc_type;
+  rc_title : title;
+  rc_user : user;
+  rc_comment : string;
+  rc_minor : bool;
+  rc_anon : bool;
+  rc_oldrevid : id;
+  rc_newrevid : id;
+  rc_timestamp : timestamp;
+  rc_logtype : string option;
+  rc_logaction : string option;
 }
 
 type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]
