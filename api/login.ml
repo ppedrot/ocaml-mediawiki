@@ -33,7 +33,7 @@ let urlencode q =
   String.concat "" (List.map map q) 
 
 let call site username (q : query) cookies =
-  let query = urlencode q in
+  let query = "format=xml" ^ urlencode q in
   let call = new post_raw site.site_api query in
   let hd = call#request_header `Base in
   let agent = match username with
