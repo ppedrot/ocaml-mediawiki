@@ -11,12 +11,12 @@ let create name url lang = {
 
 let wikisource lang = {
   site_name = "wikisource";
-  site_api = sprintf "http://%s.wikisource.org/w/api.php?format=xml" lang;
+  site_api = sprintf "https://%s.wikisource.org/w/api.php?format=xml" lang;
   site_lang = lang;
 }
 
 let wikicommons = {
   site_name = "commons";
-  site_api = "http://commons.wikimedia.org/w/api.php?format=xml";
+  site_api = "https://secure.wikimedia.org/wikipedia/commons/w/api.php?format=xml";
   site_lang = "";
 }
