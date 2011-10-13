@@ -141,7 +141,7 @@ let rec login site lg : session =
     "lgpassword", Some lg.login_password;
     "lgtoken", lg.login_token;
   ] in
-  let query = site.site_api ^ query in
+  let query = site.site_api ^ "?format=xml" ^ query in
   let call = new post query [] in
   let () = Cookie.set_cookie (call#request_header `Base) lg.login_cookies in
   let () = pipeline#add call in
