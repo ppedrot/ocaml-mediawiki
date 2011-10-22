@@ -19,27 +19,39 @@ type call = {
 }
 
 type 'a t =
-| K of ((call -> Xml.elt t) -> ('a -> unit) -> unit)
+| K of (get -> mix -> ('a -> unit) -> unit)
+
+and get = call -> Xml.elt t
+
+and mix = {mix : 'a 'b. 'a t -> 'b t -> ('a * 'b) t}
 
 type 'a request = {
   mutable result : 'a result;
   process : 'a t;
 }
 
-let return x = K (fun get k -> k x)
+let return x = K (fun get mix k -> k x)
 
 let unroll = function K f -> f
 
 let map f = function
-| K fk -> K (fun get k -> fk get (fun x -> k (f x)))
+| K fk -> K (fun get mix k -> fk get mix (fun x -> k (f x)))
 
 let bind (m : 'a t) (f : 'a -> 'b t) : 'b t =
 match m with
 | K fk ->
-  let gk get k = fk get (fun x -> unroll (f x) get k) in
+  let gk get mix k = fk get mix (fun x -> unroll (f x) get mix k) in
   K gk
 
-let http call = K (fun get k -> unroll (get call) get k)
+let http call = K (fun get mix k -> unroll (get call) get mix k)
+
+let parallel m n = K (fun get mix k -> unroll (mix.mix m n) get mix k)
+
+let rec join = function
+| [] ->
+  return []
+| m :: l ->
+  bind (parallel m (join l)) (fun (x, l) -> return (x :: l))
 
 let cast call f = {
   base_call = call;
@@ -138,11 +150,39 @@ let enqueue (call : 'a request) (p : pipeline) =
     let err = "Network Error: " ^ (http_info err) in
     fail (Network_Error err)
   in
+  (* This is the function used to process HTTP calls *)
   let get { base_call = call; treat_cookie = cks } =
+    (* Retrieve the resulting HTTP call and ensure that no exception may escape *)
     let cb k = finally (fun rq -> k (parse_call cks rq)) in
-    (* Copy the HTTP call in order to be able to reuse it *)
+    (* Copy the HTTP call in order to be purely functional *)
     let call = call#same_call () in
-    K (fun get k -> p#add_with_callback call (cb k))
+    (* Push the call in the queue *)
+    K (fun get mix k -> p#add_with_callback call (cb k))
   in
-  let callback () = finally (match call.process with K f -> f get) set_result in
+  (*
+    This is the function used to do parallel computation:
+    It pushes two callbacks on the stack and ensure proper management
+  *)
+  let mix x y =
+    let content get mix k =
+      (* Temporary result waiting for callbacks to return *)
+      let temp = ref (None, None) in
+      let cbx vx = match !temp with
+      | None, None -> temp := (Some vx, None)
+      | None, Some vy -> k (vx, vy)
+      | _ -> assert false (* we forbid callcc, so the answer should not be set yet *)
+      in
+      let cby vy = match !temp with
+      | None, None -> temp := (None, Some vy)
+      | Some vx, None -> k (vx, vy)
+      | _ -> assert false (* as for cb_x *)
+      in
+      (* We need to ensure that we catch any exception that may be raised by x or y *)
+      let () = push_callback p (fun () -> finally (unroll x get mix) cbx) in
+      let () = push_callback p (fun () -> finally (unroll y get mix) cby) in
+      ()
+    in
+    K content
+  in
+  let callback () = finally (match call.process with K f -> f get {mix}) set_result in
   push_callback p callback

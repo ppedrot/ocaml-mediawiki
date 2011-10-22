@@ -42,6 +42,12 @@ val http : call -> Xml.elt t
 (** [http c] embeds a low-level HTTP call. It returns the XML parsed from the 
   reply of the server. The call is copied, so this is purely functional. *)
 
+val parallel : 'a t -> 'b t -> ('a * 'b) t
+(** [parrallel m n] processes [m] and [n] concurrently. *)
+
+val join : 'a t list -> 'a list t
+(** [join l] processes all the calls from the list [l] concurrently. *)
+
 (** {6 Casting HTTP calls into abstract calls} *)
 
 val cast : http_call -> (Nethttp.cookie -> unit) -> call
