@@ -43,7 +43,7 @@ val http : call -> Xml.elt t
   reply of the server. The call is copied, so this is purely functional. *)
 
 val parallel : 'a t -> 'b t -> ('a * 'b) t
-(** [parrallel m n] processes [m] and [n] concurrently. *)
+(** [parallel m n] processes [m] and [n] concurrently. *)
 
 val join : 'a t list -> 'a list t
 (** [join l] processes all the calls from the list [l] concurrently. *)
