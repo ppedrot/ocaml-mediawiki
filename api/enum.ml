@@ -42,3 +42,12 @@ and filter_aux f = function
     if b then Call.return (Continue (x, filter f l))
     else filter f l
   )
+
+let rec combine l1 l2 =
+  let head = Call.parallel l1 l2 in
+  let f = function
+  | Continue (x1, l1), Continue (x2, l2) ->
+    Call.return (Continue ((x1, x2), combine l1 l2))
+  | _ -> Call.return Stop
+  in
+  Call.bind head f
