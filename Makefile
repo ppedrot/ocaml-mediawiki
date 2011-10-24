@@ -1,6 +1,6 @@
 # $Id: Makefile
 
-OCAMLLIB=/usr/lib/ocaml/
+OCAMLLIB=$(ocamlc -where)
 
 OCAMLYACC=ocamlyacc
 OCAMLC=ocamlfind ocamlc
@@ -91,4 +91,4 @@ install:
 mediawiki.mli: $(INTERFACE)
 	ocaml make_interface.ml $(INTERFACE)
 
-include .depend 
+-include .depend 
