@@ -63,8 +63,10 @@ let upload_call site username (q : query) file cookies =
   | None -> user_agent
   | Some name -> sprintf "%s::%s" user_agent name
   in
-  let length = BatFile.size_of file in
   let () = call#set_request_uri site.site_api in
+  let () = call#set_request_header hd in
+  let () = call#set_request_body body in
+  let length = BatFile.size_of file in
   let () = Cookie.set_cookie hd cookies in
   let () = hd#update_field "User-Agent" agent in
   let () = hd#update_field "Content-Length" (string_of_int length) in

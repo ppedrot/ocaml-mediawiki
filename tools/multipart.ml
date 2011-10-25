@@ -4,15 +4,15 @@ let multipart_mime_message fields file : (mime_header * mime_body) =
   (* Create a multipart message *)
   let file_body : mime_body = new file_mime_body file in
   let file_header = new basic_mime_header [
-    "Content-Disposition", "form-data; name=\"file\"";
+    "Content-Disposition", "form-data; name=\"file\"; filename=\"" ^ file ^ "\"";
     "Content-Type", "application/octet-stream";
-    "Content-transfer-encoding", "base64";
+    "Content-transfer-encoding", "binary";
   ] in
   let make_part (name, value) =
     let header = new basic_mime_header [
       "Content-Disposition", "form-data; name=\"" ^ name ^ "\"";
       "Content-Type", "text/plain; charset=UTF-8";
-      "Content-Transfer-Encoding", "base64";
+      "Content-Transfer-Encoding", "8bit";
     ] in
     let body = match value with
     | None -> new memory_mime_body ""
@@ -24,7 +24,7 @@ let multipart_mime_message fields file : (mime_header * mime_body) =
   let multipart_body = (List.map make_part fields) @ [file_header, `Body file_body] in
   let multipart_header = new basic_mime_header [
     "Content-Type", "multipart/form-data; boundary=\"" ^ boundary ^ "\"";
-    "Content-Transfer-Encoding", "7bit";
+    "Content-Transfer-Encoding", "binary";
   ] in
   (* Flatten the multipart *)
   let message = (multipart_header, `Parts multipart_body) in
