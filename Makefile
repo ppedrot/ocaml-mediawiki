@@ -1,6 +1,6 @@
 # $Id: Makefile
 
-OCAMLLIB=$(ocamlc -where)
+OCAMLLIB=$(shell ocamlc -where)
 
 OCAMLYACC=ocamlyacc
 OCAMLC=ocamlfind ocamlc
