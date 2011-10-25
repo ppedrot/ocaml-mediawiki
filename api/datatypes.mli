@@ -143,6 +143,7 @@ class type session =
     method is_valid : bool
     method get_call : query -> Call.call
     method post_call : query -> Call.call
+    method upload_call : query -> string -> Call.call
     method edit_token : token
     method logout : unit -> unit
     method save : string

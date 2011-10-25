@@ -55,6 +55,22 @@ let call site username (q : query) cookies =
   let () = hd#update_field "Accept-Encoding" "gzip" in
   call
 
+let upload_call site username (q : query) file cookies =
+  let query = ("format", Some "xml") :: q in
+  let call = new post_call in
+  let (hd, body) = Multipart.multipart_mime_message query file in
+  let agent = match username with
+  | None -> user_agent
+  | Some name -> sprintf "%s::%s" user_agent name
+  in
+  let length = BatFile.size_of file in
+  let () = call#set_request_uri site.site_api in
+  let () = Cookie.set_cookie hd cookies in
+  let () = hd#update_field "User-Agent" agent in
+  let () = hd#update_field "Content-Length" (string_of_int length) in
+  let () = hd#update_field "Accept-Encoding" "gzip" in
+  call
+
 class virtual generic_session site cookies =
   object (self)
 
@@ -72,6 +88,9 @@ class virtual generic_session site cookies =
 
     method post_call q =
       Call.cast (call self#site self#username q cookies) self#set_cookie
+
+    method upload_call query file =
+      Call.cast (upload_call self#site self#username query file cookies) self#set_cookie
 
     method is_valid = valid
 
