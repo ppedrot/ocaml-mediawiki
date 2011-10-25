@@ -58,6 +58,20 @@ let get_move_result xml =
 let get_delete_result xml =
   let _ = find_by_tag "delete" xml.children in ()
 
+let get_upload_result xml =
+  let data = find_by_tag "upload" xml.children in
+  let attrs = data.attribs in
+  let status = match List.assoc "result" attrs with
+  | "Success" -> `SUCCESS
+  | "Warning" -> `WARNING
+  | _ -> raise (Call.API "Upload Failure")
+  in
+  let filekey = try Some (List.assoc "filekey" attrs) with Not_found -> None in
+  {
+    upload_status = status;
+    upload_filekey = filekey;
+  }
+
 let write_title (session : session) ?summary ?(minor = `DEFAULT)
   ?(watch = `DEFAULT) ?(bot = false) ?(create = `DEFAULT) title text =
   let token = session#edit_token in
@@ -154,3 +168,19 @@ let delete_title session ?summary ?(watch = `DEFAULT) title =
   )
   in
   Call.map get_delete_result (Call.http delete_call)
+
+let upload_file (session : session) ?summary ?text ?(watch = `DEFAULT) 
+  ?(ignore_warnings = false) title file =
+  let token = session#edit_token in
+  let upload_call = session#upload_call ([
+    "action", Some "upload";
+    "filename", Some title;
+    "token", Some token.token;
+  ] @
+    (arg_opt "comment" summary) @
+    (arg_opt "text" text) @
+    (arg_bool "ignorewarnings" ignore_warnings) @
+    (arg_watch_flag watch)
+  ) file
+  in
+  Call.map get_upload_result (Call.http upload_call)

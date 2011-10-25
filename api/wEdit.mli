@@ -55,3 +55,16 @@ val delete_title : session -> ?summary:string -> ?watch:watch_flag ->
   @param summary Reason for the deletion. Default: empty
   @param watch Add the page to your watchlist. Default: [`DEFAULT]
 *)
+
+(** {6 Uploading} *)
+
+val upload_file : session -> ?summary:string -> ?text:string -> 
+  ?watch:watch_flag -> ?ignore_warnings:bool -> 
+  string -> string -> upload_result Call.t
+(** [upload_file s dest file] uploads local file [file] to remote file [dest].
+
+  @param summary Comment to the upload. Default: empty
+  @param text Text to put on empty description pages. Default: Same as [summary]
+  @param watch Add the page to your watchlist. Default: [`DEFAULT]
+  @param ignore_warnings Ignore any warnings. Default: [false]
+*)

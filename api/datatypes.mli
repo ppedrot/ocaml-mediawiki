@@ -30,6 +30,7 @@ type create_flag = [ `DEFAULT | `NO_CREATE | `CREATE_ONLY | `RECREATE ]
 
 type edit_status = [ `UPDATE | `NO_CHANGE | `NEW ]
 type move_status = [ `NO_REDIRECT | `REDIRECTED ]
+type upload_status = [ `SUCCESS | `WARNING ]
 
 type relative_id = [ `ID of id | `PREVIOUS | `CURRENT | `NEXT ]
 
@@ -127,6 +128,11 @@ type move_result = {
   moved_talk : (string * string) option;
   moved_subpage : (string * string) list;
   moved_subtalk : (string * string) list;
+}
+
+type upload_result = {
+  upload_status : upload_status;
+  upload_filekey : string option;
 }
 
 type site = {
