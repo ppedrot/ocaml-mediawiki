@@ -2,7 +2,6 @@ open Datatypes
 open Utils
 open Call
 
-exception Undefined
 exception Call_error of Call.error
 
 let pipeline = new Http_client.pipeline

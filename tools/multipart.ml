@@ -6,7 +6,7 @@ let multipart_mime_message fields file : (mime_header * mime_body) =
   let file_header = new basic_mime_header [
     "Content-Disposition", "form-data; name=\"file\"; filename=\"" ^ file ^ "\"";
     "Content-Type", "application/octet-stream";
-    "Content-transfer-encoding", "binary";
+    "Content-Transfer-Encoding", "binary";
   ] in
   let make_part (name, value) =
     let header = new basic_mime_header [
@@ -33,5 +33,7 @@ let multipart_mime_message fields file : (mime_header * mime_body) =
   let tmp_out = new Netchannels.output_channel tmp_out in
   let () = write_mime_message ~wr_header:false tmp_out message in
   let () = tmp_out#close_out () in
+  let length = BatFile.size_of_big tmp_file in
+  let () = multipart_header#update_field "Content-Length" (Int64.to_string length) in
   let multipart_body = new file_mime_body ~fin:true tmp_file in
   (multipart_header, multipart_body)
