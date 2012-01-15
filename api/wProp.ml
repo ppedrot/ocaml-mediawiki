@@ -77,7 +77,15 @@ let rec of_titles_aux (session : session) titles accu =
 
 let of_titles session titles =
   let () = List.iter check_title titles in
-  of_titles_aux session titles Map.empty
+  (* discard the invalid and missing titles *)
+  let map ans =
+    let fold title ans accu = match ans with
+    | `EXISTING page -> Map.add title page accu
+    | _ -> accu
+    in
+    Map.foldi fold ans Map.empty
+  in
+  Call.map map (of_titles_aux session titles Map.empty)
 
 let rec of_pageids_aux session pageids accu =
   let process xml =
@@ -109,7 +117,15 @@ let rec of_pageids_aux session pageids accu =
     Call.bind (Call.http call) process
 
 let of_pageids session pageids =
-  of_pageids_aux session pageids Map.empty
+  (* discard the invalid and missing ids *)
+  let map ans =
+    let fold id ans accu = match ans with
+    | `EXISTING page -> Map.add id page accu
+    | _ -> accu
+    in
+    Map.foldi fold ans Map.empty
+  in
+  Call.map map (of_pageids_aux session pageids Map.empty)
 
 (* Revisions *)
 

@@ -7,14 +7,14 @@ open Datatypes
 
 (** {6 Page retrieving} *)
 
-val of_titles : session -> string list -> (string, page_result) Map.t Call.t
+val of_titles : session -> string list -> (string, page) Map.t Call.t
 (** [of_titles s titles] associates to every title in [titles] the corresponding
-    page. If the title is invalid, associates [Invalid]. If the page is missing,
-    associates [Missing t] where [t] is the normalized form of the title. *)
+    page. If the title is invalid or missing, it is absent from the answer. *)
 
-val of_pageids : session -> id list -> (id, page_result) Map.t Call.t
+val of_pageids : session -> id list -> (id, page) Map.t Call.t
 (** [of_pageids s pageids] associates to every page id in [pageids] the 
-    corresponding page. If an id is invalid or missing, associates [Invalid]. *)
+    corresponding page. If the id is invalid or missing, it is absent from the 
+    answer. *)
 
 (** {6 Revision retrieving} *)
 
