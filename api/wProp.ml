@@ -127,6 +127,56 @@ let of_pageids session pageids =
   in
   Call.map map (of_pageids_aux session pageids Map.empty)
 
+let rec normalize_aux (session : session) titles accu =
+  (* Reverse mapping of normalized titles to provided ones. *)
+  let get_normalized xml =
+    let data = try_children "normalized" xml in
+    let fold accu = function
+    | Xml.Element { Xml.tag = "n"; Xml.attribs = attrs; } ->
+      let nfrom = List.assoc "from" attrs in
+      let nto = List.assoc "to" attrs in
+      Map.add nto nfrom accu
+    | _ -> accu
+    in
+    List.fold_left fold Map.empty data
+  in
+  let process xml =
+    let xml = find_by_tag "query" xml.Xml.children in
+    let normalized = get_normalized xml in
+    let pages =
+      let node = find_by_tag "pages" xml.Xml.children in
+      node.Xml.children
+    in
+    let fold accu = function
+    | Xml.Element ({Xml.tag = "page"} as p) ->
+      let title = make_title "page" p in
+      let path = title.title_path in
+      (* find the original query string *)
+      let orig_path =
+        try Map.find path normalized
+        with Not_found -> path
+      in
+      Map.add orig_path title accu
+    | _ -> accu
+    in
+    let ans = List.fold_left fold accu pages in
+    (* MediaWiki may only answer partially due to limits so retry *)
+    let redo = List.filter (fun t -> not (Map.mem t ans)) titles in
+    normalize_aux session redo ans
+  in
+  if titles = [] then
+    Call.return accu
+  else
+    let call = session#get_call [
+      "action", Some "query";
+      "prop", Some "info";
+      "titles", Some (String.concat "|" titles);
+    ] in
+    Call.bind (Call.http call) process
+
+let normalize session titles =
+  normalize_aux session titles Map.empty
+
 (* Revisions *)
 
 let dummy_revision id = {

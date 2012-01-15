@@ -120,8 +120,6 @@ type rc_info = {
   rc_logaction : string option;
 }
 
-type page_result = [ `INVALID | `MISSING of title | `EXISTING of page ]
-
 type move_result = {
   moved_status : move_status;
   moved_page : (string * string);

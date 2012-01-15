@@ -16,6 +16,11 @@ val of_pageids : session -> id list -> (id, page) Map.t Call.t
     corresponding page. If the id is invalid or missing, it is absent from the 
     answer. *)
 
+val normalize : session -> string list -> (string, title) Map.t Call.t
+(** [normalize s titles] returns the canonical title associated to a given 
+    string, regardless of the existence of the page. If a title is invalid, it
+    is absent from the answer. *)
+
 (** {6 Revision retrieving} *)
 
 val revisions : session -> ?fromid:id -> ?uptoid:id -> ?fromts:timestamp ->
