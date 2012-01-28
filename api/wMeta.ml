@@ -1,4 +1,5 @@
 open Xml
+open WTypes
 open Datatypes
 open Utils
 open Make
@@ -36,7 +37,7 @@ let userinfo session =
     | _ -> accu
     in
     let info = {
-      user_id = id_of_string (List.assoc "id" attrs);
+      user_id = Id.of_string (List.assoc "id" attrs);
       user_name = List.assoc "name" attrs;
       user_anon = List.mem_assoc "anon" attrs;
       user_groups = List.fold_left (fold "g") [] groups;

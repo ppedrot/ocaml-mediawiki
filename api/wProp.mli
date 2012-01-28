@@ -3,6 +3,7 @@
 *)
 
 open Utils
+open WTypes
 open Datatypes
 
 (** {6 Page retrieving} *)
@@ -11,7 +12,7 @@ val of_titles : session -> string list -> (string, page) Map.t Call.t
 (** [of_titles s titles] associates to every title in [titles] the corresponding
     page. If the title is invalid or missing, it is absent from the answer. *)
 
-val of_pageids : session -> id list -> (id, page) Map.t Call.t
+val of_pageids : session -> page Id.t list -> (page Id.t, page) Map.t Call.t
 (** [of_pageids s pageids] associates to every page id in [pageids] the 
     corresponding page. If the id is invalid or missing, it is absent from the 
     answer. *)
@@ -23,26 +24,26 @@ val normalize : session -> string list -> (string, title) Map.t Call.t
 
 (** {6 Revision retrieving} *)
 
-val revisions : session -> ?fromid:id -> ?uptoid:id -> ?fromts:timestamp ->
+val revisions : session -> ?fromid:revision Id.t -> ?uptoid:revision Id.t -> ?fromts:timestamp ->
   ?uptots:timestamp -> ?order:order -> ?usrfilter:user_filter -> ?limit:int ->
   page -> revision Enum.t
 (** Returns the list of revisions of a given page. Empty result if the page is 
   invalid. *)
 
-val of_revids : session -> id list -> (id, revision) Map.t Call.t
+val of_revids : session -> revision Id.t list -> (revision Id.t, revision) Map.t Call.t
 (** [of_revids s revids] associates to every revision id in [revids] the 
     corresponding revision. If the id is invalid or missing, it is absent from
     the answer. *)
 
 (** {6 Content} *)
 
-val content : session -> revision list -> (id, string) Map.t Call.t
+val content : session -> revision list -> (revision Id.t, string) Map.t Call.t
 (** Associates to every revision its content by id.
     If a revision is invalid, it is not present in the answer. *)
 
 (** {6 Diffs} *)
 
-val diff : session -> id -> relative_id -> diff Call.t
+val diff : session -> revision Id.t -> revision relative_id -> diff Call.t
 
 (**
   {6 Various enumerations}
@@ -71,5 +72,5 @@ val external_links : session -> ?limit:int -> page -> string Enum.t
 (** {6 Debugging} *)
 
 val dummy_title : title
-val dummy_page : id -> page
-val dummy_revision : id -> revision
+val dummy_page : page Id.t -> page
+val dummy_revision : revision Id.t -> revision

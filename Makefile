@@ -26,9 +26,9 @@ OCAMLDOCFLAGS=$(INCLUDES) -thread $(addprefix -package , $(PACKAGES))
 # SOURCE = tools/cookie.cmo tools/netgzip.cmo tools/xml.cmo
 # API_EXPORTED = api/call.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/prop.cmo api/enum.cmo api/edit.cmo api/misc.cmo api/meta.cmo
 
-INTERFACE=tools/xml.mli api/call.mli api/enum.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/wProp.mli api/wList.mli api/wEdit.mli api/wMisc.mli api/wMeta.mli wikisource/proofread.mli script/script.mli
+INTERFACE=tools/xml.mli api/call.mli api/enum.mli api/wTypes.mli api/datatypes.mli api/utils.mli api/site.mli api/login.mli api/wProp.mli api/wList.mli api/wEdit.mli api/wMisc.mli api/wMeta.mli wikisource/proofread.mli script/script.mli
 
-OBJS=tools/cookie.cmo tools/multipart.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/enum.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/wProp.cmo api/wList.cmo api/wEdit.cmo api/wMisc.cmo api/wMeta.cmo wikisource/proofread.cmo script/script.cmo
+OBJS=tools/cookie.cmo tools/multipart.cmo tools/netgzip.cmo tools/xml.cmo api/call.cmo api/enum.cmo api/wTypes.cmo api/datatypes.cmi api/utils.cmo api/make.cmo api/options.cmo api/site.cmo api/login.cmo api/wProp.cmo api/wList.cmo api/wEdit.cmo api/wMisc.cmo api/wMeta.cmo wikisource/proofread.cmo script/script.cmo
 
 # TOOLS=wikisource/proofread.cmo
 # OPTTOOLS=$(patsubst %.cmo,%.cmx, $(TOOLS))

@@ -1,3 +1,4 @@
+open WTypes
 open Datatypes
 open Utils
 
@@ -39,7 +40,7 @@ let arg_timestamp tag = function
 
 let arg_id tag = function
 | None -> []
-| Some id -> [tag, Some (string_of_id id)]
+| Some id -> [tag, Some (Id.to_string id)]
 
 (* API is bugged so we must put an argument here *)
 let arg_minor_flag (flag : minor_flag) = match flag with

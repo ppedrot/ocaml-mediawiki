@@ -4,7 +4,7 @@
   These are the datatypes used throughout the library.
 *)
 
-type id = int64
+open WTypes
 
 type query = (string * string option) list
 
@@ -32,7 +32,7 @@ type edit_status = [ `UPDATE | `NO_CHANGE | `NEW ]
 type move_status = [ `NO_REDIRECT | `REDIRECTED ]
 type upload_status = [ `SUCCESS | `WARNING ]
 
-type relative_id = [ `ID of id | `PREVIOUS | `CURRENT | `NEXT ]
+type 'a relative_id = [ `ID of 'a Id.t | `PREVIOUS | `CURRENT | `NEXT ]
 
 type order = [ `INCR | `DECR ]
 
@@ -49,17 +49,17 @@ type title = {
 
 type page = {
   page_title : title;
-  page_id : id;
+  page_id : page Id.t;
   page_touched : timestamp;
-  page_lastrevid : id;
+  page_lastrevid : revision Id.t;
   page_length : int;
   page_redirect : bool;
   page_new : bool;
 }
 
-type revision = {
-  rev_id : id;
-  rev_page : id;
+and revision = {
+  rev_id : revision Id.t;
+  rev_page : page Id.t;
   rev_timestamp : timestamp;
   rev_user : string;
   rev_comment : string;
@@ -67,8 +67,8 @@ type revision = {
 }
 
 type diff = {
-  diff_src : id;
-  diff_dst : id;
+  diff_src : revision Id.t;
+  diff_dst : revision Id.t;
   diff_val : string;
 }
 
@@ -88,7 +88,7 @@ type namespace_info = {
 }
 
 type user_info = {
-  user_id : id;
+  user_id : user Id.t;
   user_name : string;
   user_anon : bool;
   user_groups : string list;
@@ -106,15 +106,15 @@ type category_info = {
 }
 
 type rc_info = {
-  rc_id : id;
+  rc_id : rc_info Id.t;
   rc_type : rc_type;
   rc_title : title;
   rc_user : user;
   rc_comment : string;
   rc_minor : bool;
   rc_anon : bool;
-  rc_oldrevid : id;
-  rc_newrevid : id;
+  rc_oldrevid : revision Id.t;
+  rc_newrevid : revision Id.t;
   rc_timestamp : timestamp;
   rc_logtype : string option;
   rc_logaction : string option;
@@ -143,7 +143,7 @@ class type session =
   object
     method site : site
     method username : string option
-    method userid : id
+    method userid : user Id.t
     method is_valid : bool
     method get_call : query -> Call.call
     method post_call : query -> Call.call

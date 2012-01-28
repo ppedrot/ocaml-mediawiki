@@ -1,3 +1,4 @@
+open WTypes
 open Datatypes
 
 (** {1 Library functions} *)
@@ -7,7 +8,7 @@ val make_title : string -> Xml.elt -> title
 val make_page : Xml.elt ->
   [> `EXISTING of page | `INVALID | `MISSING of title ]
 
-val make_revision : id -> Xml.elt -> revision
+val make_revision : page Id.t -> Xml.elt -> revision
 
 val make_diff : Xml.elt -> diff
 

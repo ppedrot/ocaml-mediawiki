@@ -8,9 +8,6 @@ val user_agent : string
 
 (** {6 Identifiers} *)
 
-val id_of_string : string -> id
-val string_of_id : id -> string
-
 module Set : (module type of BatPSet)
 module Map : (module type of BatPMap)
 

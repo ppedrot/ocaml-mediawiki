@@ -8,9 +8,6 @@ type mw_version = {
 
 let user_agent = "ocaml-mediawiki"
 
-let id_of_string = Int64.of_string
-let string_of_id = Int64.to_string
-
 let string_of_title t = t.title_path
 let namespace_of_title t = t.title_namespace
 

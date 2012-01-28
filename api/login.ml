@@ -3,6 +3,7 @@ open Printf
 open Xml
 open Site
 open Utils
+open WTypes
 open Datatypes
 
 let pipeline = new pipeline
@@ -170,7 +171,7 @@ let rec login site lg : session =
   let result = List.assoc "result" data.attribs in
   begin match result with
   | "Success" ->
-    let id = id_of_string (List.assoc "lguserid" data.attribs) in
+    let id = Id.of_string (List.assoc "lguserid" data.attribs) in
     let name = List.assoc "lgusername" data.attribs in
     let cookies = Cookie.get_set_cookie call#response_header in
     object (self)
@@ -203,7 +204,7 @@ let anonymous_login site =
   object (self)
     inherit generic_session site []
     method username = None
-    method userid = 0L
+    method userid = Id.cast 0L
     method private set_invalid () = ()
   end
 
@@ -227,7 +228,7 @@ let relogin site s =
   let ans =
     object (self)
       val mutable username = None
-      val mutable userid = -1L
+      val mutable userid = Id.cast (-1L)
       inherit generic_session site cookies
 
       method private check_login () =
@@ -237,7 +238,7 @@ let relogin site s =
           let xml = find_by_tag "userinfo" xml.Xml.children in
           let attrs = xml.Xml.attribs in
           let name = List.assoc "name" attrs in
-          let id = id_of_string (List.assoc "id" attrs) in
+          let id = Id.of_string (List.assoc "id" attrs) in
           let is_anon = List.mem_assoc "anon" attrs in
           Call.return (name, id, is_anon)
         in

@@ -1,4 +1,5 @@
 open Xml
+open WTypes
 open Datatypes
 open Options
 open Utils
@@ -22,7 +23,7 @@ let dummy_page id = {
   page_title = dummy_title;
   page_id = id;
   page_touched = parse_timestamp "0000-00-00T00:00:00Z";
-  page_lastrevid = 0L;
+  page_lastrevid = Id.cast 0L;
   page_length = 0;
   page_redirect = false;
   page_new = false;
@@ -97,7 +98,7 @@ let rec of_pageids_aux session pageids accu =
     let fold accu = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
       let ans = make_page p in
-      let id = id_of_string (List.assoc "pageid" p.Xml.attribs) in
+      let id = Id.of_string (List.assoc "pageid" p.Xml.attribs) in
       Map.add id ans accu
     | _ -> accu
     in
@@ -108,7 +109,7 @@ let rec of_pageids_aux session pageids accu =
   if pageids = [] then
     Call.return accu
   else
-    let sids = List.rev_map string_of_id pageids in
+    let sids = List.rev_map Id.to_string pageids in
     let call = session#get_call [
       "action", Some "query";
       "prop", Some "info";
@@ -181,7 +182,7 @@ let normalize session titles =
 
 let dummy_revision id = {
   rev_id = id;
-  rev_page = 0L;
+  rev_page = Id.cast 0L;
   rev_timestamp = parse_timestamp "0000-00-00T00:00:00Z";
   rev_user = "";
   rev_comment = "";
@@ -196,12 +197,12 @@ let rec of_revids_aux session revids invalid accu =
     let fold_badid accu = function
     | Xml.Element r ->
       let id = List.assoc "revid" r.Xml.attribs in
-      Set.add (id_of_string id) accu
+      Set.add (Id.of_string id) accu
     | _ -> accu
     in
     let fold_pages accu = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
-      let pageid = id_of_string (List.assoc "pageid" p.Xml.attribs) in
+      let pageid = Id.of_string (List.assoc "pageid" p.Xml.attribs) in
       let revs = try_children "revisions" p in
       let fold accu = function
       | Xml.Element ({Xml.tag = "rev"} as r) ->
@@ -221,7 +222,7 @@ let rec of_revids_aux session revids invalid accu =
   if revids = [] then
     Call.return accu
   else
-    let sids = List.rev_map string_of_id revids in
+    let sids = List.rev_map Id.to_string revids in
     let call = session#get_call [
       "action", Some "query";
       "prop", Some "revisions";
@@ -242,7 +243,7 @@ let rec content_aux session revids invalid accu =
     let fold_badid accu = function
     | Xml.Element ({Xml.tag = "rev"} as r) ->
       let id = List.assoc "revid" r.Xml.attribs in
-      Set.add (id_of_string id) accu
+      Set.add (Id.of_string id) accu
     | _ -> accu
     in
     let fold_pages accu = function
@@ -252,7 +253,7 @@ let rec content_aux session revids invalid accu =
       | Xml.Element ({Xml.tag = "rev"} as r) ->
         let content = make_content r in
         let id = List.assoc "revid" r.Xml.attribs in
-        Map.add (id_of_string id) content accu
+        Map.add (Id.of_string id) content accu
       | _ -> accu
       in
       List.fold_left fold accu revs
@@ -269,7 +270,7 @@ let rec content_aux session revids invalid accu =
   if revids = [] then
     Call.return accu
   else
-    let sids = List.map string_of_id revids in
+    let sids = List.map Id.to_string revids in
     let call = session#get_call [
       "action", Some "query";
       "prop", Some "revisions";
@@ -286,7 +287,7 @@ let content session revs =
 
 let diff session src dst =
   let dst = match dst with
-  | `ID id -> string_of_id id
+  | `ID id -> Id.to_string id
   | `PREVIOUS -> "prev"
   | `CURRENT -> "cur"
   | `NEXT -> "next"
@@ -307,7 +308,7 @@ let diff session src dst =
   let call = session#get_call [
     "action", Some "query";
     "prop", Some "revisions";
-    "revids", Some (string_of_id src);
+    "revids", Some (Id.to_string src);
     "rvdiffto", Some dst;
   ] in
   Call.bind (Call.http call) process
@@ -356,7 +357,7 @@ let rec query_list_aux prop tag make_fun session pageid opts limit continue len 
 (* [prop] is the name of the property, [tag] its short name, [make_fun] the
    function used to create data from XML *)
 let query_list prop tag make_fun session page opts limit =
-  let pageid = string_of_id page.page_id in
+  let pageid = Id.to_string page.page_id in
   query_list_aux prop tag make_fun session pageid opts limit [] 0
 
 (* Revisions *)

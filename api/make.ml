@@ -1,4 +1,5 @@
 open Xml
+open WTypes
 open Datatypes
 open Utils
 
@@ -22,9 +23,9 @@ let make_page data =
   else if List.mem_assoc "invalid" l then `INVALID
   else `EXISTING {
     page_title = make_title "page" data;
-    page_id = id_of_string (List.assoc "pageid" l);
+    page_id = Id.of_string (List.assoc "pageid" l);
     page_touched = parse_timestamp (List.assoc "touched" l);
-    page_lastrevid = id_of_string (List.assoc "lastrevid" l);
+    page_lastrevid = Id.of_string (List.assoc "lastrevid" l);
     page_length = int_of_string (List.assoc "length" l);
     page_redirect = List.mem_assoc "redirect" l;
     page_new = List.mem_assoc "new" l;
@@ -35,7 +36,7 @@ let make_revision page data =
     raise (Call.API "Invalid argument: make_revision");
   let l = data.Xml.attribs in
   {
-    rev_id = id_of_string (List.assoc "revid" l);
+    rev_id = Id.of_string (List.assoc "revid" l);
     rev_page = page;
     rev_timestamp = parse_timestamp (List.assoc "timestamp" l);
     rev_user = List.assoc "user" l;
@@ -48,8 +49,8 @@ let make_diff data =
     raise (Call.API "Invalid argument: make_diff");
   let l = data.Xml.attribs in
   {
-    diff_src = id_of_string (List.assoc "from" l);
-    diff_dst = id_of_string (List.assoc "to" l);
+    diff_src = Id.of_string (List.assoc "from" l);
+    diff_dst = Id.of_string (List.assoc "to" l);
     diff_val = get_cdata data;
   }
 

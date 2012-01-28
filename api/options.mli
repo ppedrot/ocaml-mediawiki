@@ -1,3 +1,4 @@
+open WTypes
 open Datatypes
 
 (** Option manipulation *)
@@ -18,7 +19,7 @@ val arg_namespaces : string -> namespace list -> query
 
 val arg_timestamp : string -> timestamp option -> query
 
-val arg_id : string -> id option -> query
+val arg_id : string -> 'a Id.t option -> query
 
 val arg_minor_flag : minor_flag -> query
 

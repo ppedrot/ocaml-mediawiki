@@ -1,5 +1,6 @@
 open Xml
 open Utils
+open WTypes
 open Datatypes
 open Options
 open Make
@@ -164,7 +165,7 @@ let recentchanges (session : session) ?fromts ?uptots ?(ns = [])
     let attribs = elt.Xml.attribs in
     let get_val v = List.assoc v attribs in
     {
-      rc_id = id_of_string (get_val "rcid");
+      rc_id = Id.of_string (get_val "rcid");
       rc_type = get_type (get_val "type");
       rc_title = {
         title_path = get_val "title";
@@ -174,8 +175,8 @@ let recentchanges (session : session) ?fromts ?uptots ?(ns = [])
       rc_comment = get_val "comment";
       rc_minor = List.mem_assoc "minor" attribs;
       rc_anon = List.mem_assoc "anon" attribs;
-      rc_oldrevid = id_of_string (get_val "old_revid");
-      rc_newrevid = id_of_string (get_val "revid");
+      rc_oldrevid = Id.of_string (get_val "old_revid");
+      rc_newrevid = Id.of_string (get_val "revid");
       rc_timestamp = parse_timestamp (get_val "timestamp");
       rc_logtype = try_assoc "logtype" attribs;
       rc_logaction = try_assoc "logaction" attribs;
