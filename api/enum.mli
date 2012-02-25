@@ -4,12 +4,17 @@
   accessing each element requires a (possibly dummy) asynchronous API call.
 *)
 
-type 'a t = 'a node Call.t
+type 'a t
 (** The type of enumerations. *)
 
-and 'a node =
-| Stop
-| Continue of 'a * 'a t
+val empty : unit -> 'a t
+(** Empty enumeration. *)
+
+val of_list : 'a list -> 'a t
+(** Converts a list to a lazy enumeration. *)
+
+val collapse : 'a t Call.t -> 'a t
+(** Internalization of the lazyness. *)
 
 val iter : ('a -> unit) -> 'a t -> unit Call.t
 (** Asynchronous iteration over enumerations. Iteration is made callwise, so 

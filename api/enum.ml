@@ -6,6 +6,17 @@ type 'a node =
 
 and 'a t = 'a node Call.t
 
+let collapse (l : 'a t Call.t) =
+  Call.bind l (fun x -> x)
+
+let empty () = Call.return Stop
+
+let rec of_list = function
+| [] ->
+  Call.return Stop
+| x :: l ->
+  Call.return (Continue (x, of_list l))
+
 let rec iter f l = Call.bind l (iter_aux f)
 
 and iter_aux f = function

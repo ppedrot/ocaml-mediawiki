@@ -335,15 +335,11 @@ let rec query_list_aux prop tag make_fun session pageid opts limit continue len 
     let (pans, len) = fold [] len data in
     let continue = if limit <= len then `STOP else continue in
     let next = match continue with
-    | `STOP -> Call.return Enum.Stop
+    | `STOP -> Enum.empty ()
     | `CONTINUE continue ->
       query_list_aux prop tag make_fun session pageid opts limit continue len
     in
-    let rec flatten accu = function
-    | [] -> accu
-    | x :: l -> flatten (Call.return (Enum.Continue (x, accu))) l
-    in
-    flatten next pans
+    Enum.append (Enum.of_list pans) next
   in
   let query = [
     "action", Some "query";
@@ -352,7 +348,7 @@ let rec query_list_aux prop tag make_fun session pageid opts limit continue len 
     "pageids", Some pageid;
   ] @ opts @ continue in
   let call = session#get_call query in
-  Call.bind (Call.http call) process
+  Enum.collapse (Call.map process (Call.http call))
 
 (* [prop] is the name of the property, [tag] its short name, [make_fun] the
    function used to create data from XML *)
