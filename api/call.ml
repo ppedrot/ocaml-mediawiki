@@ -23,7 +23,7 @@ type 'a t =
 
 and get = call -> Xml.elt t
 
-and mix = {mix : 'a 'b. 'a t -> 'b t -> ('a * 'b) t}
+and mix = {mix : 'a. 'a t list -> 'a list t}
 
 type 'a request = {
   mutable result : 'a result;
@@ -45,13 +45,15 @@ match m with
 
 let http call = K (fun get mix k -> unroll (get call) get mix k)
 
-let parallel m n = K (fun get mix k -> unroll (mix.mix m n) get mix k)
+let join l = K (fun get mix k -> unroll (mix.mix l) get mix k)
 
-let rec join = function
-| [] ->
-  return []
-| m :: l ->
-  bind (parallel m (join l)) (fun (x, l) -> return (x :: l))
+let parallel (m : 'a t) (n : 'b t) : ('a * 'b) t =
+  let l = [Obj.magic m; Obj.magic n] in
+  let f = function
+  | [m; n] -> (Obj.magic m, Obj.magic n)
+  | _ -> assert false
+  in
+  map f (join l)
 
 let cast call f = {
   base_call = call;
@@ -77,6 +79,19 @@ let rec get_header hd = function
   if String.lowercase n = hd
     then Some (String.lowercase v)
     else get_header hd t
+
+(* From an array [|Some x1; ...; Some xn|] to a list [x1; ...; xn] *)
+let of_option_array a =
+  let len = Array.length a in
+  let rec aux n accu =
+    if n < 0 then accu
+    else
+      match a.(n) with
+      | None -> invalid_arg "of_option_array"
+      | Some x -> aux (pred n) (x :: accu)
+  in
+  aux (pred len) []
+
 
 (* TODO : analyze exn *)
 let http_info exn = Printexc.to_string exn
@@ -161,28 +176,27 @@ let enqueue (call : 'a request) (p : pipeline) =
   in
   (*
     This is the function used to do parallel computation:
-    It pushes two callbacks on the stack and ensure proper management
+    It pushes a list of callbacks on the stack and ensures proper management
   *)
-  let mix x y =
-    let content get mix k =
-      (* Temporary result waiting for callbacks to return *)
-      let temp = ref (None, None) in
-      let cbx vx = match !temp with
-      | None, None -> temp := (Some vx, None)
-      | None, Some vy -> k (vx, vy)
-      | _ -> assert false (* we forbid callcc, so the answer should not be set yet *)
+  let mix l =
+    let len = List.length l in
+    let cb get mix k =
+      let ans = Array.create len None in
+      let answered = ref 0 in
+      let push_nth_cb i call =
+        let cb v =
+          (* Should we put a mutex here? *)
+          let () = ans.(i) <- Some v in
+          let () = incr answered in
+          if !answered = len then k (of_option_array ans)
+        in
+        (* We need to ensure that we catch any exception that may be raised *)
+        push_callback p (fun () -> finally (unroll call get mix) cb)
       in
-      let cby vy = match !temp with
-      | None, None -> temp := (None, Some vy)
-      | Some vx, None -> k (vx, vy)
-      | _ -> assert false (* as for cb_x *)
-      in
-      (* We need to ensure that we catch any exception that may be raised by x or y *)
-      let () = push_callback p (fun () -> finally (unroll x get mix) cbx) in
-      let () = push_callback p (fun () -> finally (unroll y get mix) cby) in
-      ()
+      BatList.iteri push_nth_cb l
     in
-    K content
+    K cb
   in
+
   let callback () = finally (match call.process with K f -> f get {mix}) set_result in
   push_callback p callback

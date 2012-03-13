@@ -25,6 +25,7 @@ let parse_timestamp ts = Scanf.sscanf ts "%4i-%2i-%2iT%2i:%2i:%2iZ"
     hour = hour;
     minute = minute;
     second = second;
+    nanos = 0;
     zone = 0;
     week_day = -1; })
 
