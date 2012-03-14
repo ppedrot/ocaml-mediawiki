@@ -54,6 +54,17 @@ and filter_aux f = function
     else filter f l
   )
 
+let rec filter_map f l = Call.bind l (filter_map_aux f)
+
+and filter_map_aux f = function
+| Stop -> Call.return Stop
+| Continue (x, l) ->
+  let next = function
+  | None -> filter_map f l
+  | Some x -> Call.return (Continue (x, filter_map f l))
+  in
+  Call.bind (f x) next
+
 let rec combine l1 l2 =
   let head = Call.parallel l1 l2 in
   let f = function

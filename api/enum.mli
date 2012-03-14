@@ -34,5 +34,8 @@ val append : 'a t -> 'a t -> 'a t
 val filter : ('a -> bool Call.t) -> 'a t -> 'a t
 (** Asynchronous filtering of enumerations. *)
 
+val filter_map : ('a -> 'b option Call.t) -> 'a t -> 'b t
+(** Combines [filter] and [map]. *)
+
 val combine : 'a t -> 'b t -> ('a * 'b) t
 (** Lazily combine two enumerations. *)
