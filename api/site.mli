@@ -8,6 +8,9 @@ val create : string -> string -> string -> site
   language of the wiki.
 *)
 
+val wikipedia : string -> site
+(** Create a Wikipedia site from a given language. *)
+
 val wikisource : string -> site
 (** Create a Wikisource site from a given language. *)
 

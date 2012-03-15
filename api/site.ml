@@ -9,6 +9,12 @@ let create name url lang = {
   site_lang = lang;
 }
 
+let wikipedia lang = {
+  site_name = "wikipedia";
+  site_api = sprintf "https://%s.wikipedia.org/w/api.php" lang;
+  site_lang = lang;
+}
+
 let wikisource lang = {
   site_name = "wikisource";
   site_api = sprintf "https://%s.wikisource.org/w/api.php" lang;
