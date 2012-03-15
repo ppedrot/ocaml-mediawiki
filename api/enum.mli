@@ -16,7 +16,7 @@ val of_list : 'a list -> 'a t
 val collapse : 'a t Call.t -> 'a t
 (** Internalization of the lazyness. *)
 
-val iter : ('a -> unit) -> 'a t -> unit Call.t
+val iter : ('a -> unit Call.t) -> 'a t -> unit Call.t
 (** Asynchronous iteration over enumerations. Iteration is made callwise, so 
   it does not wait for the whole list to be available to apply the argument
   function. *)

@@ -63,11 +63,10 @@ let rec of_titles_aux (session : session) titles =
     in
     let ans = BatList.filter_map map pages in
     (* MediaWiki may only answer partially due to limits so retry *)
-    let redo = List.filter (fun t -> not (List.mem_assoc t ans)) titles in
+    let redo = BatList.filter (fun t -> not (List.mem_assoc t ans)) titles in
     Enum.append (Enum.of_list ans) (of_titles_aux session redo)
   in
-  if titles = [] then
-    Enum.empty ()
+  if titles = [] then Enum.empty ()
   else
     let call = session#get_call [
       "action", Some "query";
@@ -85,26 +84,35 @@ let of_titles session titles =
   in
   Enum.filter_map map (of_titles_aux session titles)
 
-let rec of_pageids_aux session pageids accu =
+let normalize session titles =
+  let () = List.iter check_title titles in
+  (* discard the invalid and missing titles *)
+  let map = function
+  | title, `EXISTING page -> Call.return (Some (title, page.page_title))
+  | title, `MISSING mtitle -> Call.return (Some (title, mtitle))
+  | _ -> Call.return None
+  in
+  Enum.filter_map map (of_titles_aux session titles)
+
+let rec of_pageids_aux session pageids =
   let process xml =
     let xml = find_by_tag "query" xml.Xml.children in
     let pages =
       let node = find_by_tag "pages" xml.Xml.children in
       node.Xml.children
     in
-    let fold accu = function
+    let map = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
       let ans = make_page p in
       let id = Id.of_string (List.assoc "pageid" p.Xml.attribs) in
-      Map.add id ans accu
-    | _ -> accu
+      Some (id, ans)
+    | _ -> None
     in
-    let ans = List.fold_left fold accu pages in
-    let redo = List.filter (fun id -> not (Map.mem id ans)) pageids in
-    of_pageids_aux session redo ans
+    let ans = BatList.filter_map map pages in
+    let redo = BatList.filter (fun id -> not (List.mem_assoc id ans)) pageids in
+    Enum.append (Enum.of_list ans) (of_pageids_aux session redo)
   in
-  if pageids = [] then
-    Call.return accu
+  if pageids = [] then Enum.empty ()
   else
     let sids = List.rev_map Id.to_string pageids in
     let call = session#get_call [
@@ -112,68 +120,15 @@ let rec of_pageids_aux session pageids accu =
       "prop", Some "info";
       "pageids", Some (String.concat "|" sids);
     ] in
-    Call.bind (Call.http call) process
+    Enum.collapse (Call.map process (Call.http call))
 
-let of_pageids session pageids =
+let of_pageids (session : session) pageids =
   (* discard the invalid and missing ids *)
-  let map ans =
-    let fold id ans accu = match ans with
-    | `EXISTING page -> Map.add id page accu
-    | _ -> accu
-    in
-    Map.foldi fold ans Map.empty
+  let map = function
+  | id, `EXISTING page -> Call.return (Some (id, page))
+  | _ -> Call.return None
   in
-  Call.map map (of_pageids_aux session pageids Map.empty)
-
-let rec normalize_aux (session : session) titles accu =
-  (* Reverse mapping of normalized titles to provided ones. *)
-  let get_normalized xml =
-    let data = try_children "normalized" xml in
-    let fold accu = function
-    | Xml.Element { Xml.tag = "n"; Xml.attribs = attrs; } ->
-      let nfrom = List.assoc "from" attrs in
-      let nto = List.assoc "to" attrs in
-      Map.add nto nfrom accu
-    | _ -> accu
-    in
-    List.fold_left fold Map.empty data
-  in
-  let process xml =
-    let xml = find_by_tag "query" xml.Xml.children in
-    let normalized = get_normalized xml in
-    let pages =
-      let node = find_by_tag "pages" xml.Xml.children in
-      node.Xml.children
-    in
-    let fold accu = function
-    | Xml.Element ({Xml.tag = "page"} as p) ->
-      let title = make_title "page" p in
-      let path = title.title_path in
-      (* find the original query string *)
-      let orig_path =
-        try Map.find path normalized
-        with Not_found -> path
-      in
-      Map.add orig_path title accu
-    | _ -> accu
-    in
-    let ans = List.fold_left fold accu pages in
-    (* MediaWiki may only answer partially due to limits so retry *)
-    let redo = List.filter (fun t -> not (Map.mem t ans)) titles in
-    normalize_aux session redo ans
-  in
-  if titles = [] then
-    Call.return accu
-  else
-    let call = session#get_call [
-      "action", Some "query";
-      "prop", Some "info";
-      "titles", Some (String.concat "|" titles);
-    ] in
-    Call.bind (Call.http call) process
-
-let normalize session titles =
-  normalize_aux session titles Map.empty
+  Enum.filter_map map (of_pageids_aux session pageids)
 
 (* Revisions *)
 
@@ -186,7 +141,7 @@ let dummy_revision id = {
   rev_minor = false;
 }
 
-let rec of_revids_aux session revids invalid accu =
+let rec of_revids_aux session revids =
   let process xml =
     let xml = find_by_tag "query" xml.Xml.children in
     let badids = try_children "badrevids" xml in
@@ -197,27 +152,26 @@ let rec of_revids_aux session revids invalid accu =
       Set.add (Id.of_string id) accu
     | _ -> accu
     in
-    let fold_pages accu = function
+    let filter_pages = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
       let pageid = Id.of_string (List.assoc "pageid" p.Xml.attribs) in
       let revs = try_children "revisions" p in
-      let fold accu = function
+      let map = function
       | Xml.Element ({Xml.tag = "rev"} as r) ->
         let rev = make_revision pageid r in
-        Map.add rev.rev_id rev accu
-      | _ -> accu
+        Some (rev.rev_id, rev)
+      | _ -> None
       in
-      List.fold_left fold accu revs
-    | _ -> accu
+      Some (BatList.filter_map map revs)
+    | _ -> None
     in
-    let accu = List.fold_left fold_pages accu pages in
-    let invalid = List.fold_left fold_badid invalid badids in
-    let filter t = not (Map.mem t accu) && not (Set.mem t invalid) in
-    let redo = List.filter filter revids in
-    of_revids_aux session redo invalid accu
+    let ans = BatList.concat (BatList.filter_map filter_pages pages) in
+    let invalid = List.fold_left fold_badid Set.empty badids in
+    let filter t = not (List.mem_assoc t ans) && not (Set.mem t invalid) in
+    let redo = BatList.filter filter revids in
+    Enum.append (Enum.of_list ans) (of_revids_aux session redo)
   in
-  if revids = [] then
-    Call.return accu
+  if revids = [] then Enum.empty ()
   else
     let sids = List.rev_map Id.to_string revids in
     let call = session#get_call [
@@ -225,14 +179,14 @@ let rec of_revids_aux session revids invalid accu =
       "prop", Some "revisions";
       "revids", Some (String.concat "|" sids);
     ] in
-    Call.bind (Call.http call) process
+    Enum.collapse (Call.map process (Call.http call))
 
 let of_revids session revids =
-  of_revids_aux session revids Set.empty Map.empty
+  of_revids_aux session revids
 
 (* Content *)
 
-let rec content_aux session revids invalid accu =
+let rec content_aux session revids =
   let process xml =
     let xml = find_by_tag "query" xml.Xml.children in
     let badids = try_children "badrevids" xml in
@@ -243,42 +197,41 @@ let rec content_aux session revids invalid accu =
       Set.add (Id.of_string id) accu
     | _ -> accu
     in
-    let fold_pages accu = function
+    let filter_pages = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
       let revs = try_children "revisions" p in
-      let fold accu = function
+      let map = function
       | Xml.Element ({Xml.tag = "rev"} as r) ->
         let content = make_content r in
         let id = List.assoc "revid" r.Xml.attribs in
-        Map.add (Id.of_string id) content accu
-      | _ -> accu
+        Some ((Id.of_string id), content)
+      | _ -> None
       in
-      List.fold_left fold accu revs
-    | _ -> accu
+      Some (BatList.filter_map map revs)
+    | _ -> None
     in
     (* Get content of valid revids *)
-    let accu = List.fold_left fold_pages accu pages in
+    let ans = BatList.concat (BatList.filter_map filter_pages pages) in
     (* Get rid of invalid revids *)
-    let invalid = List.fold_left fold_badid invalid badids in
-    let filter t = not (Map.mem t accu) && not (Set.mem t invalid) in
-    let redo = List.filter filter revids in
-    content_aux session redo invalid accu
+    let invalid = List.fold_left fold_badid Set.empty badids in
+    let filter t = not (List.mem_assoc t ans) && not (Set.mem t invalid) in
+    let redo = BatList.filter filter revids in
+    Enum.append (Enum.of_list ans) (content_aux session redo)
   in
-  if revids = [] then
-    Call.return accu
+  if revids = [] then Enum.empty ()
   else
-    let sids = List.map Id.to_string revids in
+    let sids = BatList.map Id.to_string revids in
     let call = session#get_call [
       "action", Some "query";
       "prop", Some "revisions";
       "revids", Some (String.concat "|" sids);
       "rvprop", Some "ids|content";
     ] in
-    Call.bind (Call.http call) process
+    Enum.collapse (Call.map process (Call.http call))
 
 let content session revs =
-  let revids = List.map (fun r -> r.rev_id) revs in
-  content_aux session revids Set.empty Map.empty
+  let revids = BatList.map (fun r -> r.rev_id) revs in
+  content_aux session revids
 
 (* Diffs *)
 

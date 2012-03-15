@@ -20,7 +20,7 @@ let rec of_list = function
 let rec iter f l =
   let iter_aux f = function
   | Stop -> Call.return ()
-  | Continue (x, l) -> let () = f x in iter f l
+  | Continue (x, l) -> Call.bind (f x) (fun () -> iter f l)
   in
   Call.bind l (iter_aux f)
 

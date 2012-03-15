@@ -12,12 +12,12 @@ val of_titles : session -> string list -> (string * page) Enum.t
 (** [of_titles s titles] associates to every title in [titles] the corresponding
     page. If the title is invalid or missing, it is absent from the answer. *)
 
-val of_pageids : session -> page Id.t list -> (page Id.t, page) Map.t Call.t
+val of_pageids : session -> page Id.t list -> (page Id.t * page) Enum.t
 (** [of_pageids s pageids] associates to every page id in [pageids] the 
     corresponding page. If the id is invalid or missing, it is absent from the 
     answer. *)
 
-val normalize : session -> string list -> (string, title) Map.t Call.t
+val normalize : session -> string list -> (string * title) Enum.t
 (** [normalize s titles] returns the canonical title associated to a given 
     string, regardless of the existence of the page. If a title is invalid, it
     is absent from the answer. *)
@@ -30,14 +30,14 @@ val revisions : session -> ?fromid:revision Id.t -> ?uptoid:revision Id.t -> ?fr
 (** Returns the list of revisions of a given page. Empty result if the page is 
   invalid. *)
 
-val of_revids : session -> revision Id.t list -> (revision Id.t, revision) Map.t Call.t
+val of_revids : session -> revision Id.t list -> (revision Id.t * revision) Enum.t
 (** [of_revids s revids] associates to every revision id in [revids] the 
     corresponding revision. If the id is invalid or missing, it is absent from
     the answer. *)
 
 (** {6 Content} *)
 
-val content : session -> revision list -> (revision Id.t, string) Map.t Call.t
+val content : session -> revision list -> (revision Id.t * string) Enum.t
 (** Associates to every revision its content by id.
     If a revision is invalid, it is not present in the answer. *)
 
