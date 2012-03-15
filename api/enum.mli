@@ -31,6 +31,9 @@ val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a Call.t
 val append : 'a t -> 'a t -> 'a t
 (** Append two enumerations. Lazy. *)
 
+val concat : 'a t t -> 'a t
+(** Flattens an enum of enums. Lazy. *)
+
 val filter : ('a -> bool Call.t) -> 'a t -> 'a t
 (** Asynchronous filtering of enumerations. *)
 
