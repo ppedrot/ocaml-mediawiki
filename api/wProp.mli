@@ -8,7 +8,7 @@ open Datatypes
 
 (** {6 Page retrieving} *)
 
-val of_titles : session -> string list -> (string, page) Map.t Call.t
+val of_titles : session -> string list -> (string * page) Enum.t
 (** [of_titles s titles] associates to every title in [titles] the corresponding
     page. If the title is invalid or missing, it is absent from the answer. *)
 

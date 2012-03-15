@@ -30,7 +30,7 @@ let dummy_page id = {
 }
 
 (* TODO : patch for interwikis + redirects *)
-let rec of_titles_aux (session : session) titles accu =
+let rec of_titles_aux (session : session) titles =
   (* Reverse mapping of normalized titles to provided ones. *)
   let get_normalized xml =
     let data = try_children "normalized" xml in
@@ -50,7 +50,7 @@ let rec of_titles_aux (session : session) titles accu =
       let node = find_by_tag "pages" xml.Xml.children in
       node.Xml.children
     in
-    let fold accu = function
+    let map = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
       let page = make_page p in
       let norm_title = List.assoc "title" p.Xml.attribs in
@@ -58,35 +58,32 @@ let rec of_titles_aux (session : session) titles accu =
         try Map.find norm_title normalized
         with Not_found -> norm_title
       in
-      Map.add orig_title page accu
-    | _ -> accu
+      Some (orig_title, page)
+    | _ -> None
     in
-    let ans = List.fold_left fold accu pages in
+    let ans = BatList.filter_map map pages in
     (* MediaWiki may only answer partially due to limits so retry *)
-    let redo = List.filter (fun t -> not (Map.mem t ans)) titles in
-    of_titles_aux session redo ans
+    let redo = List.filter (fun t -> not (List.mem_assoc t ans)) titles in
+    Enum.append (Enum.of_list ans) (of_titles_aux session redo)
   in
   if titles = [] then
-    Call.return accu
+    Enum.empty ()
   else
     let call = session#get_call [
       "action", Some "query";
       "prop", Some "info";
       "titles", Some (String.concat "|" titles);
     ] in
-    Call.bind (Call.http call) process
+    Enum.collapse (Call.map process (Call.http call))
 
 let of_titles session titles =
   let () = List.iter check_title titles in
   (* discard the invalid and missing titles *)
-  let map ans =
-    let fold title ans accu = match ans with
-    | `EXISTING page -> Map.add title page accu
-    | _ -> accu
-    in
-    Map.foldi fold ans Map.empty
+  let map = function
+  | title, `EXISTING page -> Call.return (Some (title, page))
+  | _ -> Call.return None
   in
-  Call.map map (of_titles_aux session titles Map.empty)
+  Enum.filter_map map (of_titles_aux session titles)
 
 let rec of_pageids_aux session pageids accu =
   let process xml =
