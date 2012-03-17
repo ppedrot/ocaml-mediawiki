@@ -24,13 +24,14 @@ val normalize : session -> string list -> (string * title) Enum.t
 
 (** {6 Revision retrieving} *)
 
-val revisions : session -> ?fromid:revision Id.t -> ?uptoid:revision Id.t -> ?fromts:timestamp ->
-  ?uptots:timestamp -> ?order:order -> ?usrfilter:user_filter -> ?limit:int ->
-  page -> revision Enum.t
+val revisions : session -> ?fromid:revision Id.t -> ?uptoid:revision Id.t -> 
+  ?fromts:timestamp -> ?uptots:timestamp -> ?order:order -> 
+  ?usrfilter:user_filter -> ?limit:int -> page -> revision Enum.t
 (** Returns the list of revisions of a given page. Empty result if the page is 
   invalid. *)
 
-val of_revids : session -> revision Id.t list -> (revision Id.t * revision) Enum.t
+val of_revids :
+  session -> revision Id.t list -> (revision Id.t * revision) Enum.t
 (** [of_revids s revids] associates to every revision id in [revids] the 
     corresponding revision. If the id is invalid or missing, it is absent from
     the answer. *)
@@ -40,6 +41,11 @@ val of_revids : session -> revision Id.t list -> (revision Id.t * revision) Enum
 val content : session -> revision list -> (revision Id.t * string) Enum.t
 (** Associates to every revision its content by id.
     If a revision is invalid, it is not present in the answer. *)
+
+val last_revision_of_titles :
+  session -> string list -> (string * (revision * string)) Enum.t
+(** Associates to every title its last revision and last content. If a title is
+  invalid or missing, it is absent from the answer. *)
 
 (** {6 Diffs} *)
 

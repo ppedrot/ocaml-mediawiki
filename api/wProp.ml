@@ -17,6 +17,18 @@ let check_title t =
   if String.contains t '|' || String.contains t '#'
   then invalid_arg "Malformed title"
 
+(** Builds a map of normalized titles *)
+let get_normalized xml =
+  let data = try_children "normalized" xml in
+  let fold accu = function
+  | Xml.Element { Xml.tag = "n"; Xml.attribs = attrs; } ->
+    let nfrom = List.assoc "from" attrs in
+    let nto = List.assoc "to" attrs in
+    Map.add nto nfrom accu
+  | _ -> accu
+  in
+  List.fold_left fold Map.empty data
+
 (* Pages *)
 
 let dummy_page id = {
@@ -32,17 +44,6 @@ let dummy_page id = {
 (* TODO : patch for interwikis + redirects *)
 let rec of_titles_aux (session : session) titles =
   (* Reverse mapping of normalized titles to provided ones. *)
-  let get_normalized xml =
-    let data = try_children "normalized" xml in
-    let fold accu = function
-    | Xml.Element { Xml.tag = "n"; Xml.attribs = attrs; } ->
-      let nfrom = List.assoc "from" attrs in
-      let nto = List.assoc "to" attrs in
-      Map.add nto nfrom accu
-    | _ -> accu
-    in
-    List.fold_left fold Map.empty data
-  in
   let process xml =
     let xml = find_by_tag "query" xml.Xml.children in
     let normalized = get_normalized xml in
@@ -185,6 +186,49 @@ let of_revids session revids =
   of_revids_aux session revids
 
 (* Content *)
+
+let rec last_revision_of_titles session titles =
+  let process xml =
+    let xml = find_by_tag "query" xml.Xml.children in
+    let normalized = get_normalized xml in
+    let pages =
+      let node = find_by_tag "pages" xml.Xml.children in
+      node.Xml.children
+    in
+    let map = function
+    | Xml.Element ({Xml.tag = "page"} as p) ->
+      let norm_title = List.assoc "title" p.Xml.attribs in
+      let orig_title =
+        try Map.find norm_title normalized
+        with Not_found -> norm_title
+      in
+      let revs = try_children "revisions" p in
+      let map = function
+      | Xml.Element ({Xml.tag = "rev"} as r) ->
+        (* This should not fail because there are revisions, so the page does exist *)
+        let pageid = Id.of_string (List.assoc "pageid" p.Xml.attribs) in
+        let content = make_content r in
+        let rev = make_revision pageid r in
+        Some (orig_title, (rev, content))
+      | _ -> None
+      in
+      Some (BatList.filter_map map revs)
+    | _ -> None
+    in
+    let ans = BatList.concat (BatList.filter_map map pages) in
+    (* MediaWiki may only answer partially due to limits so retry *)
+    let redo = BatList.filter (fun t -> not (List.mem_assoc t ans)) titles in
+    Enum.append (Enum.of_list ans) (last_revision_of_titles session redo)
+  in
+  if titles = [] then Enum.empty ()
+  else
+    let call = session#get_call [
+      "action", Some "query";
+      "prop", Some "revisions";
+      "titles", Some (String.concat "|" titles);
+      "rvprop", Some "ids|timestamp|flags|comment|user|content";
+    ] in
+    Enum.collapse (Call.map process (Call.http call))
 
 let rec content_aux session revids =
   let process xml =
