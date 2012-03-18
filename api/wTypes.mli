@@ -1,3 +1,5 @@
+(** Basic datatypes of Mediawiki *)
+
 module Id :
   sig
     type +'a t = private Int64.t
