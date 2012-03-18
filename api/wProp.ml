@@ -7,10 +7,7 @@ open Make
 
 (* Titles *)
 
-let dummy_title = {
-  title_path = "";
-  title_namespace = 0;
-}
+let dummy_title = Title.make "" 0
 
 (* TODO *)
 let check_title t =
@@ -53,12 +50,12 @@ let rec of_titles_aux (session : session) titles =
     in
     let map = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
-      let page = make_page p in
       let norm_title = List.assoc "title" p.Xml.attribs in
       let orig_title =
         try Map.find norm_title normalized
         with Not_found -> norm_title
       in
+      let page = make_page (Some orig_title) p in
       Some (orig_title, page)
     | _ -> None
     in
@@ -104,7 +101,7 @@ let rec of_pageids_aux session pageids =
     in
     let map = function
     | Xml.Element ({Xml.tag = "page"} as p) ->
-      let ans = make_page p in
+      let ans = make_page None p in
       let id = Id.of_string (List.assoc "pageid" p.Xml.attribs) in
       Some (id, ans)
     | _ -> None

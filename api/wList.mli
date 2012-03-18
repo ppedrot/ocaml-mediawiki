@@ -4,12 +4,13 @@
   These queries return various (usually huge) lists, presented as enumerations.
 *)
 
+open WTypes
 open Datatypes
 
 val allpages : session ->
   ?ns:namespace -> ?from:string -> ?upto:string -> ?prefix:string ->
   ?rdrfilter:redirect_filter -> ?minsize:int -> ?maxsize:int -> ?order:order -> 
-  ?limit:int -> unit -> title Enum.t
+  ?limit:int -> unit -> Title.t Enum.t
 (** Enumerate all pages.
 
   @param ns The namespace to enumerate. Default: [0]
@@ -37,7 +38,7 @@ val allcategories : session ->
 
 val backlinks : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
-  ?limit:int -> title -> title Enum.t
+  ?limit:int -> Title.t -> Title.t Enum.t
 (** Enumerate all pages linking to the given page.
 
   @param ns Namespaces to enumerate. Default: all
@@ -48,7 +49,7 @@ val backlinks : session ->
 
 val embeddedin : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter ->
-  ?limit:int -> title -> title Enum.t
+  ?limit:int -> Title.t -> Title.t Enum.t
 (** Enumerate all pages embedded in the given page.
 
   @param ns Namespaces to enumerate. Default: all
@@ -57,7 +58,7 @@ val embeddedin : session ->
 *)
 
 val exturlusage : session ->
-  ?ns:namespace list -> ?limit:int -> string -> (title * string) Enum.t
+  ?ns:namespace list -> ?limit:int -> string -> (Title.t * string) Enum.t
 (** Enumerate all pages using a given URL pattern.
 
   @param ns Namespaces to enumerate. Default: all
@@ -66,7 +67,7 @@ val exturlusage : session ->
 
 val imageusage : session ->
   ?ns:namespace list -> ?rdrfilter:redirect_filter -> ?rdr:bool ->
-  ?limit:int -> title -> title Enum.t
+  ?limit:int -> Title.t -> Title.t Enum.t
 (** Enumerate all pages that use the given page.
 
   @param ns Namespaces to enumerate. Default: all
@@ -92,7 +93,7 @@ val recentchanges : session ->
 
 val search : session ->
   ?ns:namespace list -> ?what:search_type -> ?rdr:bool ->
-  ?limit:int -> string -> title Enum.t
+  ?limit:int -> string -> Title.t Enum.t
 (** Search for a given string on a Mediawiki site.
 
   @param ns Namespaces to enumerate. Default: all

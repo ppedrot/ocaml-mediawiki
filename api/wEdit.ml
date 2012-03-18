@@ -1,4 +1,5 @@
 open Xml
+open WTypes
 open Datatypes
 open Options
 open Utils
@@ -78,7 +79,7 @@ let write_title (session : session) ?summary ?(minor = `DEFAULT)
   let digest = Digest.to_hex (Digest.string text) in
   let write_call = session#post_call ([
     "action", Some "edit";
-    "title", Some (string_of_title title);
+    "title", Some (Title.to_string title);
     "text", Some text;
     "token", Some token.token;
     "md5", Some digest;
@@ -104,7 +105,7 @@ let write_page (session : session) ?summary ?(minor = `DEFAULT)
   let ts = print_timestamp page.page_touched in
   let write_call = session#post_call ([
     "action", Some "edit";
-    "title", Some (string_of_title page.page_title);
+    "title", Some (Title.to_string page.page_title);
     "basetimestamp", Some ts;
     "text", Some text;
     "token", Some token.token;
@@ -124,8 +125,8 @@ let move_page session ?summary ?(watch = `DEFAULT) ?(rdr = true)
   let token = session#edit_token in
   let move_call = session#post_call ([
     "action", Some "move";
-    "from", Some (string_of_title page.page_title);
-    "to", Some (string_of_title title);
+    "from", Some (Title.to_string page.page_title);
+    "to", Some (Title.to_string title);
     "token", Some token.token;
   ] @
     (arg_opt "reason" summary) @
@@ -143,8 +144,8 @@ let move_title session ?summary ?(watch = `DEFAULT) ?(rdr = true)
   let token = session#edit_token in
   let move_call = session#post_call ([
     "action", Some "move";
-    "from", Some (string_of_title src);
-    "to", Some (string_of_title dst);
+    "from", Some (Title.to_string src);
+    "to", Some (Title.to_string dst);
     "token", Some token.token;
   ] @
     (arg_opt "reason" summary) @
@@ -160,7 +161,7 @@ let delete_title session ?summary ?(watch = `DEFAULT) title =
   let token = session#edit_token in
   let delete_call = session#post_call ([
     "action", Some "delete";
-    "title", Some (string_of_title title);
+    "title", Some (Title.to_string title);
     "token", Some token.token;
   ] @
     (arg_opt "reason" summary) @

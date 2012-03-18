@@ -11,11 +11,6 @@ val user_agent : string
 module Set : (module type of BatPSet)
 module Map : (module type of BatPMap)
 
-(** {6 Title manipulation} *)
-
-val string_of_title : title -> string
-val namespace_of_title : title -> namespace
-
 (** {6 Various stuff} *)
 
 val parse_timestamp : string -> timestamp

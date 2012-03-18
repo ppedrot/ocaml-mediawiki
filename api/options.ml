@@ -17,7 +17,7 @@ let arg_opt key = function
 | Some value -> [key, Some value]
 
 let arg_title tag title =
-  [tag ^ "title", Some (string_of_title title)]
+  [tag ^ "title", Some (Title.to_string title)]
 
 let arg_limit tag len =
   if len < 0 then invalid_arg "arg_limit"

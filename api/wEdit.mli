@@ -4,6 +4,7 @@
 
 *)
 
+open WTypes
 open Datatypes
 
 (** {6 Writing pages} *)
@@ -23,14 +24,14 @@ val write_page : session -> ?summary:string -> ?minor:minor_flag ->
 
 val write_title : session -> ?summary:string -> ?minor:minor_flag ->
   ?watch:watch_flag -> ?bot:bool -> ?create:create_flag ->
-  title -> string -> edit_status Call.t
+  Title.t -> string -> edit_status Call.t
 (** As for {!write_page} but with a title only. Do not check for any conflict. *)
 
 (** {6 Moving pages} *)
 
 val move_page : session -> ?summary:string -> ?watch:watch_flag -> ?rdr:bool -> 
   ?subpages:bool -> ?talk:bool -> ?ignore_warnings:bool ->
-  page -> title -> move_result Call.t
+  page -> Title.t -> move_result Call.t
 (** Move a page to a given title.
 
   @param summary Reason of the move. Default: empty
@@ -43,13 +44,13 @@ val move_page : session -> ?summary:string -> ?watch:watch_flag -> ?rdr:bool ->
 
 val move_title : session -> ?summary:string -> ?watch:watch_flag -> ?rdr:bool -> 
   ?subpages:bool -> ?talk:bool -> ?ignore_warnings:bool ->
-  title -> title -> move_result Call.t
+  Title.t -> Title.t -> move_result Call.t
 (** As for {!move_page} but with a title only. *)
 
 (** {6 Deleting pages} *)
 
 val delete_title : session -> ?summary:string -> ?watch:watch_flag -> 
-  title -> unit Call.t
+  Title.t -> unit Call.t
 (** Delete a given page.
 
   @param summary Reason for the deletion. Default: empty

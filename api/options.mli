@@ -11,7 +11,7 @@ val arg_opt : string -> string option -> query
 
 val arg_namespace : string -> namespace option -> query
 
-val arg_title : string -> title -> query
+val arg_title : string -> Title.t -> query
 
 val arg_limit : string -> int -> query
 

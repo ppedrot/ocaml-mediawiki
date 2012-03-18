@@ -6,7 +6,12 @@ module Id :
     val to_string : 'a t -> string
   end
 
-class type identified =
-  object ('self)
-    method id : 'self Id.t
+module Title :
+  sig
+    type t
+    val make : ?raw:string -> string -> int -> t
+    (** [make base norm ns] create a title its a raw title, its normalized one 
+        and its namespace. *)
+    val to_string : t -> string
+    val namespace : t -> int
   end

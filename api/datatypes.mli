@@ -42,13 +42,8 @@ type token = {
   token_ts : timestamp;
 }
 
-type title = {
-  title_path : string;
-  title_namespace : namespace;
-}
-
 type page = {
-  page_title : title;
+  page_title : Title.t;
   page_id : page Id.t;
   page_touched : timestamp;
   page_lastrevid : revision Id.t;
@@ -108,7 +103,7 @@ type category_info = {
 type rc_info = {
   rc_id : rc_info Id.t;
   rc_type : rc_type;
-  rc_title : title;
+  rc_title : Title.t;
   rc_user : user;
   rc_comment : string;
   rc_minor : bool;

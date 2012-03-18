@@ -1,3 +1,4 @@
+open WTypes
 open Datatypes
 open Utils
 open Xml
@@ -6,7 +7,7 @@ open Options
 let ignore r = Call.return ()
 
 let purge (session : session) titles =
-  let titles = List.map string_of_title titles in
+  let titles = List.map Title.to_string titles in
   let call = session#post_call [
     "action", Some "purge";
     "titles", Some (String.concat "|" titles);
@@ -51,7 +52,7 @@ let random (session : session) ?(ns = []) ?(rdr = false) () =
     | Element elt :: _ -> elt
     | _ -> invalid_arg "Enum.random"
     in
-    Call.return (Make.make_title "page" page)
+    Call.return (Make.make_title "page" None page)
   in
   let call = session#get_call ([
     "action", Some "query";
