@@ -66,7 +66,7 @@ let allpages (session : session) ?ns ?from ?upto ?prefix
     (arg_opt "apminsize" (may string_of_int minsize)) @
     (arg_opt "apmaxsize" (may string_of_int maxsize))
   in
-  query_list "allpages" "ap" (make_title "p" None) session opts limit
+  query_list "allpages" "ap" (make_title "p") session opts limit
 
 (* All categories *)
 
@@ -96,7 +96,7 @@ let backlinks (session : session) ?(ns = [])
     (arg_redirect_filter "bl" rdrfilter)
   in
   (* FIXME : parse redirlinks *)
-  query_list "backlinks" "bl" (make_title "bl" None) session opts limit
+  query_list "backlinks" "bl" (make_title "bl") session opts limit
 
 (* Embedded pages *)
 
@@ -107,7 +107,7 @@ let embeddedin (session : session) ?(ns = []) ?(rdrfilter = `ALL)
     (arg_namespaces "ei" ns) @
     (arg_redirect_filter "ei" rdrfilter)
   in
-  query_list "embeddedin" "ei" (make_title "ei" None) session opts limit
+  query_list "embeddedin" "ei" (make_title "ei") session opts limit
 
 (* External URL usage *)
 
@@ -115,7 +115,7 @@ let embeddedin (session : session) ?(ns = []) ?(rdrfilter = `ALL)
 let exturlusage (session : session) ?(ns = []) ?(limit = max_int) url =
   let opts = ["euquery", Some url] @ (arg_namespaces "eu" ns) in
   let make_url elt =
-    let title = make_title "eu" None elt in
+    let title = make_title "eu" elt in
     let url = List.assoc "url" elt.attribs in
     (title, url)
   in
@@ -132,7 +132,7 @@ let imageusage (session : session) ?(ns = [])
     (arg_bool "iuredirect" rdr) @
     (arg_redirect_filter "iu" rdrfilter)
   in
-  query_list "imageusage" "iu" (make_title "iu" None) session opts limit
+  query_list "imageusage" "iu" (make_title "iu") session opts limit
 
 (* Recent changes *)
 
@@ -191,4 +191,4 @@ let search (session : session) ?(ns = []) ?(what = `TEXT) ?(rdr = false)
     (arg_bool "srredirects" rdr) @
     (arg_namespaces "sr" ns)
   in
-  query_list "search" "sr" (make_title "p" None) session opts limit
+  query_list "search" "sr" (make_title "p") session opts limit

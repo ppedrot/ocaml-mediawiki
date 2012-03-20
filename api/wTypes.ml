@@ -16,23 +16,16 @@ struct
 
 type t = {
   path : string;
-  normalized : string;
   namespace : int;
 }
 
-let make ?raw normalized ns = {
-  path = (match raw with None -> normalized | Some path -> path);
-  normalized = normalized;
+let make path ns = {
+  path = path;
   namespace = ns;
 }
 
-let to_string t = t.normalized
+let to_string t = t.path
 
 let namespace t = t.namespace
 
 end
-
-class type identified =
-  object ('self)
-    method id : 'self Id.t
-  end

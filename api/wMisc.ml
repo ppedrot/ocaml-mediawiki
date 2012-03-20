@@ -52,7 +52,7 @@ let random (session : session) ?(ns = []) ?(rdr = false) () =
     | Element elt :: _ -> elt
     | _ -> invalid_arg "Enum.random"
     in
-    Call.return (Make.make_title "page" None page)
+    Call.return (Make.make_title "page" page)
   in
   let call = session#get_call ([
     "action", Some "query";

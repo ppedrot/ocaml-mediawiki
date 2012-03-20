@@ -3,29 +3,25 @@ open WTypes
 open Datatypes
 open Utils
 
-let opt_title raw path ns = match raw with
-| None -> Title.make path ns
-| Some raw -> Title.make ~raw path ns
-
 (* TODO : separate path *)
-let make_title tag raw data =
+let make_title tag data =
   if data.Xml.tag <> tag then
     raise (Call.API "Invalid argument: make_title");
   let l = data.Xml.attribs in
   let path = List.assoc "title" l in
   let ns = int_of_string (List.assoc "ns" l) in
-  opt_title raw path ns
+  Title.make path ns
 
-let make_page raw data =
+let make_page data =
   if data.Xml.tag <> "page" then
     raise (Call.API "Invalid argument: make_page");
   let l = data.Xml.attribs in
   if List.mem_assoc "missing" l then
-    try `MISSING (make_title "page" raw data)
+    try `MISSING (make_title "page" data)
     with _ -> `INVALID
   else if List.mem_assoc "invalid" l then `INVALID
   else `EXISTING {
-    page_title = make_title "page" raw data;
+    page_title = make_title "page" data;
     page_id = Id.of_string (List.assoc "pageid" l);
     page_touched = parse_timestamp (List.assoc "touched" l);
     page_lastrevid = Id.of_string (List.assoc "lastrevid" l);
@@ -57,7 +53,7 @@ let make_diff data =
     diff_val = get_cdata data;
   }
 
-let make_link = make_title "pl" None
+let make_link = make_title "pl"
 
 let make_langlink data =
   if data.Xml.tag <> "ll" then
@@ -72,9 +68,9 @@ let make_extlink data =
     raise (Call.API "Invalid argument: make_extlink");
   get_cdata data
 
-let make_imagelink = make_title "im" None
+let make_imagelink = make_title "im"
 
-let make_templatelink = make_title "tl" None
+let make_templatelink = make_title "tl"
 
 (* FIXME *)
 let make_category data =

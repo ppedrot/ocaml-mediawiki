@@ -11,7 +11,7 @@ module Id :
 module Title :
   sig
     type t
-    val make : ?raw:string -> string -> int -> t
+    val make : string -> int -> t
     (** [make base norm ns] create a title its a raw title, its normalized one 
         and its namespace. *)
     val to_string : t -> string

@@ -3,9 +3,9 @@ open Datatypes
 
 (** {1 Library functions} *)
 
-val make_title : string -> string option -> Xml.elt -> Title.t
+val make_title : string -> Xml.elt -> Title.t
 
-val make_page : string option -> Xml.elt ->
+val make_page : Xml.elt ->
   [> `EXISTING of page | `INVALID | `MISSING of Title.t ]
 
 val make_revision : page Id.t -> Xml.elt -> revision
