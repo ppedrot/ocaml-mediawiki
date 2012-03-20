@@ -77,7 +77,7 @@ val imageusage : session ->
 *)
 
 val recentchanges : session ->
-  ?fromts:timestamp -> ?uptots:timestamp -> ?ns:namespace list -> 
+  ?fromts:Timestamp.t -> ?uptots:Timestamp.t -> ?ns:namespace list -> 
   ?order:order -> ?usrfilter:user_filter -> ?limit:int -> 
   unit -> rc_info Enum.t
 (** List all recent changes.

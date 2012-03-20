@@ -102,7 +102,7 @@ let write_page (session : session) ?summary ?(minor = `DEFAULT)
     "rvprop", Some "timestamp";
     "revids", Some (string_of_id page.page_lastrevid);
   ] in *)
-  let ts = print_timestamp page.page_touched in
+  let ts = Timestamp.to_string page.page_touched in
   let write_call = session#post_call ([
     "action", Some "edit";
     "title", Some (Title.to_string page.page_title);

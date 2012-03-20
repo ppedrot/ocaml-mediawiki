@@ -111,7 +111,7 @@ class virtual generic_session site cookies =
         | Element { attribs = attribs } :: _ ->
           let token = List.assoc "edittoken" attribs in
           let ts = List.assoc "starttimestamp" attribs in
-          let ts = Utils.parse_timestamp ts in
+          let ts = Timestamp.of_string ts in
           { token = token; token_type = `EDIT; token_ts = ts; }
         | _ -> assert false
       in

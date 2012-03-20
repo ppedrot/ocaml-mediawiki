@@ -8,10 +8,6 @@ open WTypes
 
 type query = (string * string option) list
 
-type namespace = int
-
-type timestamp = Netdate.t
-
 type language = string
 
 type user = string
@@ -39,31 +35,31 @@ type order = [ `INCR | `DECR ]
 type token = {
   token : string;
   token_type : token_type;
-  token_ts : timestamp;
+  token_ts : Timestamp.t;
 }
 
 type page = {
   page_title : Title.t;
-  page_id : page Id.t;
-  page_touched : timestamp;
-  page_lastrevid : revision Id.t;
+  page_id : _page_ Id.t;
+  page_touched : Timestamp.t;
+  page_lastrevid : _revision_ Id.t;
   page_length : int;
   page_redirect : bool;
   page_new : bool;
 }
 
-and revision = {
-  rev_id : revision Id.t;
-  rev_page : page Id.t;
-  rev_timestamp : timestamp;
+type revision = {
+  rev_id : _revision_ Id.t;
+  rev_page : _page_ Id.t;
+  rev_timestamp : Timestamp.t;
   rev_user : string;
   rev_comment : string;
   rev_minor : bool;
 }
 
 type diff = {
-  diff_src : revision Id.t;
-  diff_dst : revision Id.t;
+  diff_src : _revision_ Id.t;
+  diff_dst : _revision_ Id.t;
   diff_val : string;
 }
 
@@ -108,9 +104,9 @@ type rc_info = {
   rc_comment : string;
   rc_minor : bool;
   rc_anon : bool;
-  rc_oldrevid : revision Id.t;
-  rc_newrevid : revision Id.t;
-  rc_timestamp : timestamp;
+  rc_oldrevid : _revision_ Id.t;
+  rc_newrevid : _revision_ Id.t;
+  rc_timestamp : Timestamp.t;
   rc_logtype : string option;
   rc_logaction : string option;
 }

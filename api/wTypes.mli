@@ -1,8 +1,21 @@
-(** Basic datatypes of Mediawiki *)
+(** {5 Basic datatypes of Mediawiki} *)
+
+type namespace = int
+
+(** {6 Phantom types} *)
+
+type _page_
+type _revision_
+
+(** {6 Core types} *)
 
 module Id :
   sig
+    (** {5 Identifiers} *)
+
     type +'a t = private Int64.t
+    (** Identifiers use phantom types to ensure safety *)
+
     val cast : Int64.t -> 'a t
     val of_string : string -> 'a t
     val to_string : 'a t -> string
@@ -10,10 +23,25 @@ module Id :
 
 module Title :
   sig
+    (** {5 Titles} *)
+
     type t
-    val make : string -> int -> t
-    (** [make base norm ns] create a title its a raw title, its normalized one 
-        and its namespace. *)
+    val make : string -> namespace -> t
+    (** Creates a title from a normalized title and a
+        namespace. *)
     val to_string : t -> string
-    val namespace : t -> int
+    (** Returns the normalized form of the title *)
+    val namespace : t -> namespace
+    (** Returns the namespace to which belongs the titlte *)
+  end
+
+module Timestamp :
+  sig
+    (** {5 Timestamps} *)
+
+    type t
+    val of_string : string -> t
+    (** Parses a timestamp as [yyyy-mm-ddThh:mm:ssZ] *)
+    val to_string : t -> string
+    (** Prints a timestamp according to the previous pattern *)
   end

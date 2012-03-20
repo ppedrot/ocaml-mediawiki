@@ -12,7 +12,7 @@ val of_titles : session -> string list -> (string * page) Enum.t
 (** [of_titles s titles] associates to every title in [titles] the corresponding
     page. If the title is invalid or missing, it is absent from the answer. *)
 
-val of_pageids : session -> page Id.t list -> (page Id.t * page) Enum.t
+val of_pageids : session -> _page_ Id.t list -> (_page_ Id.t * page) Enum.t
 (** [of_pageids s pageids] associates to every page id in [pageids] the 
     corresponding page. If the id is invalid or missing, it is absent from the 
     answer. *)
@@ -24,21 +24,21 @@ val normalize : session -> string list -> (string * Title.t) Enum.t
 
 (** {6 Revision retrieving} *)
 
-val revisions : session -> ?fromid:revision Id.t -> ?uptoid:revision Id.t -> 
-  ?fromts:timestamp -> ?uptots:timestamp -> ?order:order -> 
+val revisions : session -> ?fromid:_revision_ Id.t -> ?uptoid:_revision_ Id.t -> 
+  ?fromts:Timestamp.t -> ?uptots:Timestamp.t -> ?order:order -> 
   ?usrfilter:user_filter -> ?limit:int -> page -> revision Enum.t
 (** Returns the list of revisions of a given page. Empty result if the page is 
   invalid. *)
 
 val of_revids :
-  session -> revision Id.t list -> (revision Id.t * revision) Enum.t
+  session -> _revision_ Id.t list -> (_revision_ Id.t * revision) Enum.t
 (** [of_revids s revids] associates to every revision id in [revids] the 
     corresponding revision. If the id is invalid or missing, it is absent from
     the answer. *)
 
 (** {6 Content} *)
 
-val content : session -> revision list -> (revision Id.t * string) Enum.t
+val content : session -> revision list -> (_revision_ Id.t * string) Enum.t
 (** Associates to every revision its content by id.
     If a revision is invalid, it is not present in the answer. *)
 
@@ -49,7 +49,7 @@ val last_revision_of_titles :
 
 (** {6 Diffs} *)
 
-val diff : session -> revision Id.t -> revision relative_id -> diff Call.t
+val diff : session -> _revision_ Id.t -> _revision_ relative_id -> diff Call.t
 
 (**
   {6 Various enumerations}
@@ -78,5 +78,5 @@ val external_links : session -> ?limit:int -> page -> string Enum.t
 (** {6 Debugging} *)
 
 val dummy_title : Title.t
-val dummy_page : page Id.t -> page
-val dummy_revision : revision Id.t -> revision
+val dummy_page : _page_ Id.t -> page
+val dummy_revision : _revision_ Id.t -> revision

@@ -23,7 +23,7 @@ let make_page data =
   else `EXISTING {
     page_title = make_title "page" data;
     page_id = Id.of_string (List.assoc "pageid" l);
-    page_touched = parse_timestamp (List.assoc "touched" l);
+    page_touched = Timestamp.of_string (List.assoc "touched" l);
     page_lastrevid = Id.of_string (List.assoc "lastrevid" l);
     page_length = int_of_string (List.assoc "length" l);
     page_redirect = List.mem_assoc "redirect" l;
@@ -37,7 +37,7 @@ let make_revision page data =
   {
     rev_id = Id.of_string (List.assoc "revid" l);
     rev_page = page;
-    rev_timestamp = parse_timestamp (List.assoc "timestamp" l);
+    rev_timestamp = Timestamp.of_string (List.assoc "timestamp" l);
     rev_user = List.assoc "user" l;
     rev_comment = (try List.assoc "comment" l with _ -> "");
     rev_minor = List.mem_assoc "minor" l;

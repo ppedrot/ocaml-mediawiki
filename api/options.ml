@@ -36,7 +36,7 @@ let arg_namespaces tag = function
 
 let arg_timestamp tag = function
 | None -> []
-| Some ts -> [tag, Some (print_timestamp ts)]
+| Some ts -> [tag, Some (Timestamp.to_string ts)]
 
 let arg_id tag = function
 | None -> []

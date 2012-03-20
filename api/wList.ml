@@ -170,7 +170,7 @@ let recentchanges (session : session) ?fromts ?uptots ?(ns = [])
       rc_anon = List.mem_assoc "anon" attribs;
       rc_oldrevid = Id.of_string (get_val "old_revid");
       rc_newrevid = Id.of_string (get_val "revid");
-      rc_timestamp = parse_timestamp (get_val "timestamp");
+      rc_timestamp = Timestamp.of_string (get_val "timestamp");
       rc_logtype = try_assoc "logtype" attribs;
       rc_logaction = try_assoc "logaction" attribs;
     }
