@@ -40,17 +40,17 @@ type token = {
 
 type page = {
   page_title : Title.t;
-  page_id : _page_ Id.t;
+  page_id : page_t Id.t;
   page_touched : Timestamp.t;
-  page_lastrevid : _revision_ Id.t;
+  page_lastrevid : revision_t Id.t;
   page_length : int;
   page_redirect : bool;
   page_new : bool;
 }
 
 type revision = {
-  rev_id : _revision_ Id.t;
-  rev_page : _page_ Id.t;
+  rev_id : revision_t Id.t;
+  rev_page : page_t Id.t;
   rev_timestamp : Timestamp.t;
   rev_user : string;
   rev_comment : string;
@@ -58,8 +58,8 @@ type revision = {
 }
 
 type diff = {
-  diff_src : _revision_ Id.t;
-  diff_dst : _revision_ Id.t;
+  diff_src : revision_t Id.t;
+  diff_dst : revision_t Id.t;
   diff_val : string;
 }
 
@@ -104,8 +104,8 @@ type rc_info = {
   rc_comment : string;
   rc_minor : bool;
   rc_anon : bool;
-  rc_oldrevid : _revision_ Id.t;
-  rc_newrevid : _revision_ Id.t;
+  rc_oldrevid : revision_t Id.t;
+  rc_newrevid : revision_t Id.t;
   rc_timestamp : Timestamp.t;
   rc_logtype : string option;
   rc_logaction : string option;

@@ -4,8 +4,8 @@ type namespace = int
 
 (** {6 Phantom types} *)
 
-type _page_
-type _revision_
+type page_t
+type revision_t
 
 (** {6 Core types} *)
 

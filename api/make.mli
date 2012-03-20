@@ -8,7 +8,7 @@ val make_title : string -> Xml.elt -> Title.t
 val make_page : Xml.elt ->
   [> `EXISTING of page | `INVALID | `MISSING of Title.t ]
 
-val make_revision : _page_ Id.t -> Xml.elt -> revision
+val make_revision : page_t Id.t -> Xml.elt -> revision
 
 val make_diff : Xml.elt -> diff
 

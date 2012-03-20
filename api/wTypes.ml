@@ -3,8 +3,8 @@
 type namespace = int
 type timestamp = Netdate.t
 
-type _page_
-type _revision_
+type page_t
+type revision_t
 
 module Id =
 struct
