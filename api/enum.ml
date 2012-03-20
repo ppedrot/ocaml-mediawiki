@@ -20,7 +20,25 @@ let rec of_list = function
 let rec iter f l =
   let iter_aux f = function
   | Stop -> Call.return ()
-  | Continue (x, l) -> Call.bind (f x) (fun () -> iter f l)
+  | Continue (x, l) ->
+    let () = f x in
+    iter f l
+  in
+  Call.bind l (iter_aux f)
+
+let rec iter_s f l =
+  let iter_aux f = function
+  | Stop -> Call.return ()
+  | Continue (x, l) -> Call.bind (f x) (fun () -> iter_s f l)
+  in
+  Call.bind l (iter_aux f)
+
+let rec iter_p f l =
+  let iter_aux f = function
+  | Stop -> Call.return ()
+  | Continue (x, l) ->
+    let call = Call.parallel (f x) (iter_p f l) in
+    Call.map fst call
   in
   Call.bind l (iter_aux f)
 
@@ -36,6 +54,23 @@ let rec map f l =
   let map_aux f = function
   | Stop -> Call.return Stop
   | Continue (x, l) -> Call.return (Continue (f x, map f l))
+  in
+  Call.bind l (map_aux f)
+
+let rec map_s f l =
+  let map_aux f = function
+  | Stop -> Call.return Stop
+  | Continue (x, l) ->
+    Call.map (fun y -> (Continue (y, map_s f l))) (f x)
+  in
+  Call.bind l (map_aux f)
+
+let rec map_p f l =
+  let map_aux f = function
+  | Stop -> Call.return Stop
+  | Continue (x, l) ->
+    let p = Call.parallel (f x) (map_p f l) in
+    Call.map (fun (y, r) -> Continue (y, Call.return r)) p
   in
   Call.bind l (map_aux f)
 

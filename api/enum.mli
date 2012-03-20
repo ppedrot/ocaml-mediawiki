@@ -4,6 +4,15 @@
   accessing each element requires a (possibly dummy) asynchronous API call.
 *)
 
+(** Naming convention: in this module all function taking a function which is 
+    applied to all element of the streams are suffixed by:
+
+- [_s] when the function is monadic and calls are serialised
+- [_p] when the function is monadic and calls are parallelised
+
+*)
+
+
 type 'a t
 (** The type of enumerations. *)
 
@@ -16,13 +25,15 @@ val of_list : 'a list -> 'a t
 val collapse : 'a t Call.t -> 'a t
 (** Internalization of the lazyness. *)
 
-val iter : ('a -> unit Call.t) -> 'a t -> unit Call.t
-(** Asynchronous iteration over enumerations. Iteration is made callwise, so 
-  it does not wait for the whole list to be available to apply the argument
-  function. *)
+val iter : ('a -> unit) -> 'a t -> unit Call.t
+val iter_s : ('a -> unit Call.t) -> 'a t -> unit Call.t
+val iter_p : ('a -> unit Call.t) -> 'a t -> unit Call.t
+(** Iteration over enumerations. *)
 
 val map : ('a -> 'b) -> 'a t -> 'b t
-(** Asynchronous map over enumerations. Lazy. *)
+val map_s : ('a -> 'b Call.t) -> 'a t -> 'b t
+val map_p : ('a -> 'b Call.t) -> 'a t -> 'b t
+(** Map over enumerations. *)
 
 val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a Call.t
 (** [fold f accu enum] folds enum using [f]. This is eager: the call evaluation 
