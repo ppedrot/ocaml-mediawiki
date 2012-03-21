@@ -40,16 +40,14 @@ val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a Call.t
   may trigger a lot of API calls at once, hence making it quite costly. *)
 
 val append : 'a t -> 'a t -> 'a t
-(** Append two enumerations. Lazy. *)
+(** Append two enumerations. *)
 
 val concat : 'a t t -> 'a t
-(** Flattens an enum of enums. Lazy. *)
+(** Flattens an enum of enums. *)
 
-val filter : ('a -> bool Call.t) -> 'a t -> 'a t
+val filter : ('a -> bool) -> 'a t -> 'a t
+val filter_s : ('a -> bool Call.t) -> 'a t -> 'a t
 (** Asynchronous filtering of enumerations. *)
 
-val filter_map : ('a -> 'b option Call.t) -> 'a t -> 'b t
+val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Combines [filter] and [map]. *)
-
-val combine : 'a t -> 'b t -> ('a * 'b) t
-(** Lazily combine two enumerations. *)

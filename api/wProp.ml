@@ -77,8 +77,8 @@ let of_titles session titles =
   let () = List.iter check_title titles in
   (* discard the invalid and missing titles *)
   let map = function
-  | title, `EXISTING page -> Call.return (Some (title, page))
-  | _ -> Call.return None
+  | title, `EXISTING page -> Some (title, page)
+  | _ -> None
   in
   Enum.filter_map map (of_titles_aux session titles)
 
@@ -86,9 +86,9 @@ let normalize session titles =
   let () = List.iter check_title titles in
   (* discard the invalid and missing titles *)
   let map = function
-  | title, `EXISTING page -> Call.return (Some (title, page.page_title))
-  | title, `MISSING mtitle -> Call.return (Some (title, mtitle))
-  | _ -> Call.return None
+  | title, `EXISTING page -> Some (title, page.page_title)
+  | title, `MISSING mtitle -> Some (title, mtitle)
+  | _ -> None
   in
   Enum.filter_map map (of_titles_aux session titles)
 
@@ -123,8 +123,8 @@ let rec of_pageids_aux session pageids =
 let of_pageids (session : session) pageids =
   (* discard the invalid and missing ids *)
   let map = function
-  | id, `EXISTING page -> Call.return (Some (id, page))
-  | _ -> Call.return None
+  | id, `EXISTING page -> Some (id, page)
+  | _ -> None
   in
   Enum.filter_map map (of_pageids_aux session pageids)
 
