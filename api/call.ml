@@ -171,6 +171,7 @@ let enqueue (call : 'a request) (p : pipeline) =
     let cb k = finally (fun rq -> k (parse_call cks rq)) in
     (* Copy the HTTP call in order to be purely functional *)
     let call = call#same_call () in
+    let () = call#set_reconnect_mode Send_again in
     (* Push the call in the queue *)
     K (fun get mix k -> p#add_with_callback call (cb k))
   in
