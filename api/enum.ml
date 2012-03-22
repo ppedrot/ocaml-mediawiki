@@ -21,10 +21,15 @@ let rec of_list l = {
 }
 
 let rec iter f l =
-  let () = List.iter f l.chunk in
-  match l.continue with
+  let chunk_call =
+    Call.map (fun _ -> List.iter f l.chunk) (Call.return ())
+  in
+  let continue_call = match l.continue with
   | None -> Call.return ()
   | Some call -> Call.bind call (iter f)
+  in
+  Call.bind chunk_call (fun _ ->
+  Call.bind continue_call (fun _ -> Call.return ()))
 
 let rec iter_s f l =
   let rec iter_aux = function
