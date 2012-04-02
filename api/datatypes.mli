@@ -142,4 +142,6 @@ class type session =
     method edit_token : token
     method logout : unit -> unit
     method save : string
+    method maxlag : int
+    method set_maxlag : int -> unit
   end

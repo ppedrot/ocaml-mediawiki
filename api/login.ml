@@ -40,7 +40,8 @@ let urlencode q =
   in
   String.concat "" (List.map map q) 
 
-let call site username (q : query) cookies =
+let call site username maxlag (q : query) cookies =
+  let q = ("maxlag", Some (string_of_int maxlag)) :: q in
   let query = "format=xml" ^ urlencode q in
   let call = new post_raw site.site_api query in
   let hd = call#request_header `Base in
@@ -79,6 +80,7 @@ class virtual generic_session site cookies =
     val mutable cookies = cookies
     val mutable edit_token : token option = None
     val mutable valid = true
+    val mutable maxlag = 5
 
     method site : site = site
 
@@ -88,7 +90,7 @@ class virtual generic_session site cookies =
 (*       Call.cast (call (new get) self q cookies) self#set_cookie *)
 
     method post_call q =
-      Call.cast (call self#site self#username q cookies) self#set_cookie
+      Call.cast (call self#site self#username self#maxlag q cookies) self#set_cookie
 
     method upload_call query file =
       Call.cast (upload_call self#site self#username query file cookies) self#set_cookie
@@ -151,6 +153,10 @@ class virtual generic_session site cookies =
         (sprintf "%s\n%s\n" name value) ^ accu
       in
       List.fold_left fold "" cookies
+
+    method maxlag = maxlag
+
+    method set_maxlag lag = maxlag <- lag
 
   end
 
