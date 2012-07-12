@@ -206,16 +206,22 @@ let rec last_revision_of_titles session titles =
         let pageid = Id.of_string (List.assoc "pageid" p.Xml.attribs) in
         let content = make_content r in
         let rev = make_revision pageid r in
-        Some (orig_title, (rev, content))
+        Some (rev, content)
       | _ -> None
       in
-      Some (BatList.filter_map map revs)
+      let revs = BatList.filter_map map revs in
+      Some (orig_title, revs)
     | _ -> None
     in
-    let ans = BatList.concat (BatList.filter_map map pages) in
+    let ans = BatList.filter_map map pages in
     (* MediaWiki may only answer partially due to limits so retry *)
     let redo = BatList.filter (fun t -> not (List.mem_assoc t ans)) titles in
-    Enum.append (Enum.of_list ans) (last_revision_of_titles session redo)
+    let map (title, revs) = match revs with
+    | [] -> None
+    | r :: _ -> Some (title, r)
+    in
+    let flat = BatList.filter_map map ans in
+    Enum.append (Enum.of_list flat) (last_revision_of_titles session redo)
   in
   if titles = [] then Enum.empty ()
   else

@@ -18,42 +18,45 @@ type call = {
   treat_cookie : Cookie.t -> unit;
 }
 
-type 'a t =
-| K of (get -> mix -> ('a -> unit) -> unit)
+type void
 
-and get = call -> Xml.elt t
+type 'a t = 'a cont -> void
 
-and mix = {mix : 'a. 'a t list -> 'a list t}
+and 'a cont = {
+  get : call -> Xml.elt t;
+  mix : 'r. 'r t list -> 'r list t;
+  knt : 'a -> void;
+}
 
 type 'a request = {
   mutable result : 'a result;
   process : 'a t;
 }
 
-let return x = K (fun get mix k -> k x)
+(* Fooling the type system *)
+let dummy : void = Obj.magic 0
 
-let unroll = function K f -> f
+let return x k = k.knt x
 
-let map f = function
-| K fk -> K (fun get mix k -> fk get mix (fun x -> k (f x)))
+let map f (m : 'a t) (k : 'b cont) =
+  let fk = { k with knt = fun x -> k.knt (f x) } in
+  m fk
 
-let bind (m : 'a t) (f : 'a -> 'b t) : 'b t =
-match m with
-| K fk ->
-  let gk get mix k = fk get mix (fun x -> unroll (f x) get mix k) in
-  K gk
+let bind (m : 'a t) (f : 'a -> 'b t) (k : 'b cont) =
+  let fk = { k with knt = fun x -> (f x) k } in
+  m fk
 
-let http call = K (fun get mix k -> unroll (get call) get mix k)
+let http call k = k.get call k
 
-let join l = K (fun get mix k -> unroll (mix.mix l) get mix k)
+let join (l : 'a t list) (k : 'a list cont) = k.mix l k
 
-let parallel (m : 'a t) (n : 'b t) : ('a * 'b) t =
+let parallel (m : 'a t) (n : 'b t) (k : ('a * 'b) cont) =
   let l = [Obj.magic m; Obj.magic n] in
   let f = function
   | [m; n] -> (Obj.magic m, Obj.magic n)
   | _ -> assert false
   in
-  map f (join l)
+  map f (join l) k
 
 let cast call f = {
   base_call = call;
@@ -116,9 +119,9 @@ let process_error xml =
 
 let enqueue (call : 'a request) (p : pipeline) =
   let fail err = call.result <- Failed err; raise Exit in
-  let set_result ans = call.result <- Successful ans in
+  let set_result ans = call.result <- Successful ans; dummy in
   let finally f arg =
-    try f arg with err ->
+    try ignore (f arg) with err ->
       let info = match err with
       | API err -> API_Error err
       | _ -> Other_Error err
@@ -166,38 +169,40 @@ let enqueue (call : 'a request) (p : pipeline) =
     fail (Network_Error err)
   in
   (* This is the function used to process HTTP calls *)
-  let get { base_call = call; treat_cookie = cks } =
+  let get { base_call = call; treat_cookie = cks } k =
     (* Retrieve the resulting HTTP call and ensure that no exception may escape *)
-    let cb k = finally (fun rq -> k (parse_call cks rq)) in
+    let cb rq = finally (fun rq -> k.knt (parse_call cks rq)) rq in
     (* Copy the HTTP call in order to be purely functional *)
     let call = call#same_call () in
     let () = call#set_reconnect_mode Send_again in
     (* Push the call in the queue *)
-    K (fun get mix k -> p#add_with_callback call (cb k))
+    p#add_with_callback call cb;
+    dummy
   in
   (*
     This is the function used to do parallel computation:
     It pushes a list of callbacks on the stack and ensures proper management
   *)
-  let mix l =
+  let mix l k =
     let len = List.length l in
-    let cb get mix k =
-      let ans = Array.create len None in
-      let answered = ref 0 in
-      let push_nth_cb i call =
-        let cb v =
-          (* Should we put a mutex here? *)
-          let () = ans.(i) <- Some v in
-          let () = incr answered in
-          if !answered = len then k (of_option_array ans)
-        in
-        (* We need to ensure that we catch any exception that may be raised *)
-        push_callback p (fun () -> finally (unroll call get mix) cb)
+    let ans = Array.create len None in
+    let answered = ref 0 in
+    let push_nth_cb i call =
+      let nk v =
+        (* Should we put a mutex here? *)
+        let () = ans.(i) <- Some v in
+        let () = incr answered in
+        if !answered = len then k.knt (of_option_array ans)
+        else dummy
       in
-      BatList.iteri push_nth_cb l
+      let cont = { k with knt = nk } in
+      (* We need to ensure that we catch any exception that may be raised *)
+      push_callback p (fun () -> finally call cont)
     in
-    K cb
+    BatList.iteri push_nth_cb l;
+    dummy
   in
 
-  let callback () = finally (match call.process with K f -> f get {mix}) set_result in
+  let k = { get = get; mix = mix; knt = set_result; } in
+  let callback () = finally call.process k in
   push_callback p callback
