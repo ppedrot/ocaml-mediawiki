@@ -9,7 +9,7 @@ open Http_client
 
 type call
 
-type 'a t
+type +'a t
 
 type 'a request
 

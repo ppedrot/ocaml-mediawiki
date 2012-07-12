@@ -13,7 +13,7 @@
 *)
 
 
-type 'a t
+type +'a t
 (** The type of enumerations. *)
 
 val empty : unit -> 'a t
