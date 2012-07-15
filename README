@@ -1,0 +1,22 @@
+This is OCaml-Mediawiki, a high-level binding for MediaWiki API written in 
+OCaml.
+
+The required dependencies are:
+- ocaml
+- findlib
+- ocaml-zip
+- ocaml-expat
+- ocaml-batteries
+- ocaml-net
+
+To compile, type:
+
+make
+
+To install:
+
+make install
+
+Documentation may be generated through:
+
+make doc
