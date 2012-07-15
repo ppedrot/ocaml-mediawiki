@@ -11,7 +11,7 @@ val allimages : session ->
   ?from:string -> ?upto:string -> ?prefix:string ->
   ?minsize:int -> ?maxsize:int -> ?order:order -> 
   ?limit:int -> unit -> Title.t Enum.t
-(** Enumerate all pages.
+(** Enumerate all images.
 
   @param from The page from which to start the enumeration. Default: none
   @param upto The page up to which do the enumeration. Default: none
