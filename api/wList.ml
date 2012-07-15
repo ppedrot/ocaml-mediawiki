@@ -47,6 +47,25 @@ let rec query_list_aux prop tag make_fun session opts limit continue len =
 let query_list prop tag make_fun session opts limit =
   query_list_aux prop tag make_fun session opts limit [] 0
 
+(* All images *)
+
+let allimages (session : session) ?from ?upto ?prefix
+  ?minsize ?maxsize ?(order = `INCR) 
+  ?(limit = max_int) () =
+  let order = match order with
+  | `INCR -> "ascending"
+  | `DECR -> "descending"
+  in
+  let opts =
+    ["aidir", Some order] @
+    (arg_opt "aifrom" from) @
+    (arg_opt "aito" upto) @
+    (arg_opt "aiprefix" prefix) @
+    (arg_opt "aiminsize" (may string_of_int minsize)) @
+    (arg_opt "aimaxsize" (may string_of_int maxsize))
+  in
+  query_list "allimages" "ai" (make_title "img") session opts limit
+
 (* All pages *)
 
 let allpages (session : session) ?ns ?from ?upto ?prefix

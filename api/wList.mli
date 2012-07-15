@@ -7,6 +7,21 @@
 open WTypes
 open Datatypes
 
+val allimages : session ->
+  ?from:string -> ?upto:string -> ?prefix:string ->
+  ?minsize:int -> ?maxsize:int -> ?order:order -> 
+  ?limit:int -> unit -> Title.t Enum.t
+(** Enumerate all pages.
+
+  @param from The page from which to start the enumeration. Default: none
+  @param upto The page up to which do the enumeration. Default: none
+  @param prefix Only enumerate pages that starts with this prefix. Default: empty
+  @param minsize Minimum size in bytes of page to be enumerated. Default: none
+  @param maxsize Maximum size in bytes of page to be enumerated. Default: none
+  @param order Order of the enumeration. Default: [`INCR]
+  @param limit Maximum number of pages to enumerate. Default: [max_int]
+*)
+
 val allpages : session ->
   ?ns:namespace -> ?from:string -> ?upto:string -> ?prefix:string ->
   ?rdrfilter:redirect_filter -> ?minsize:int -> ?maxsize:int -> ?order:order -> 
@@ -105,7 +120,6 @@ val search : session ->
 (* TODO *)
 
 (*
-  allimages
   alllinks
   allusers
   blocks
