@@ -14,25 +14,25 @@ open Make
 
 let rec query_list_aux prop tag make_fun session opts limit continue len =
   let process xml =
+    let current_len = ref len in
     let continue = get_continue xml prop in
     let xml = find_by_tag "query" xml.children in
     let data = try_children prop xml in
-    let rec fold accu len = function
-    | [] -> (accu, len)
-    | Xml.Element elt :: l ->
-      if limit <= len then (accu, len)
-      else fold (make_fun elt :: accu) (succ len) l
-    | _ :: l ->
-    (* Whenever the answer is not an element, discard it *)
-      fold accu len l
+    let filter = function
+    | Xml.Element elt ->
+      if limit <= !current_len then None
+      else
+        let () = incr current_len in
+        Some (make_fun elt)
+    | _ -> None
     in
     (* elements are reversed *)
-    let (pans, len) = fold [] len data in
-    let continue = if limit <= len then `STOP else continue in
+    let pans = BatList.filter_map filter data in
+    let continue = if limit <= !current_len then `STOP else continue in
     let next = match continue with
     | `STOP -> Enum.empty ()
     | `CONTINUE continue ->
-      query_list_aux prop tag make_fun session opts limit continue len
+      query_list_aux prop tag make_fun session opts limit continue !current_len
     in
     Enum.append (Enum.of_list pans) next
   in
