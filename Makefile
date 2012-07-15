@@ -10,6 +10,7 @@ OCAMLMKLIB=ocamlfind ocamlmklib
 OCAMLDOC=ocamlfind ocamldoc
 
 INCLUDES=-I tools -I api -I wikisource -I script
+INCLUDE_FOLDERS=tools api wikisource script
 
 SYNTAX=camlp4o
 PACKAGES=threads batteries expat pcre netstring netclient netcgi2 equeue-ssl zip
@@ -71,7 +72,7 @@ optlib: opt mediawiki.cmi
 	$(OCAMLOPT) $(OCAMLFLAGS) -a $(CMXS) -o mediawiki.cmxa
 
 dep:
-	$(OCAMLDEP) $(OCAMLDEPFLAGS) $(shell find . -name "*.ml") $(shell find . -name "*.mli") > .depend
+	$(OCAMLDEP) $(OCAMLDEPFLAGS) $(shell find $(INCLUDE_FOLDERS) -name "*.ml") $(shell find . -name "*.mli") > .depend
 
 yacc:
 
