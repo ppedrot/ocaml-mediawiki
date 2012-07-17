@@ -385,7 +385,7 @@ let templates s ?(ns = []) ?(limit = max_int) p =
 
 (* FIXME: add a real parser and options *)
 let categories s ?(limit = max_int) p =
-  query_list "categories" "cl" make_category s p [] limit
+  query_list "categories" "cl" (make_title "cl") s p [] limit
 
 (* FIXME: must use eloffset instead of elcontinue *)
 let external_links s ?(limit = max_int) p =

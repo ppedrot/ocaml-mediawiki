@@ -69,7 +69,7 @@ val images : session -> ?limit:int -> page -> Title.t Enum.t
 val templates : session -> ?ns:namespace list -> ?limit:int -> page -> Title.t Enum.t
 (** Returns the list of template titles used on a given page. *)
 
-val categories : session -> ?limit:int -> page -> string Enum.t
+val categories : session -> ?limit:int -> page -> Title.t Enum.t
 (** Returns the list of categories to which pertains a given page. *)
 
 val external_links : session -> ?limit:int -> page -> string Enum.t
