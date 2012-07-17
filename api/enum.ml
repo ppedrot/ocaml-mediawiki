@@ -138,6 +138,16 @@ let rec filter_map f l =
   in
   { chunk; continue }
 
+let rec find f l =
+  let opt_ans = BatList.Exceptionless.find f l.chunk in
+  match opt_ans with
+  | None ->
+    begin match l.continue with
+    | None -> Call.return None
+    | Some call -> Call.bind call (find f)
+    end
+  | _ -> Call.return opt_ans
+
 let rec concat l =
   let next = match l.continue with
   | None -> empty ()

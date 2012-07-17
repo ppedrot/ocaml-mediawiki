@@ -51,3 +51,6 @@ val filter_s : ('a -> bool Call.t) -> 'a t -> 'a t
 
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Combines [filter] and [map]. *)
+
+val find  : ('a -> bool) -> 'a t -> 'a option Call.t
+(** Returns an element that satifies the predicate *)
