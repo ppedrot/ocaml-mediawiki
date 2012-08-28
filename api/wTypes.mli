@@ -4,8 +4,11 @@ type namespace = int
 
 (** {6 Phantom types} *)
 
-type page_t
-type revision_t
+type page_t = [ `PAGE ]
+type category_t = [ `PAGE | `CATEGORY ]
+type revision_t = [ `REVISION ]
+type user_t = [ `USER ]
+type rc_t
 
 (** {6 Core types} *)
 
@@ -13,7 +16,7 @@ module Id :
   sig
     (** {5 Identifiers} *)
 
-    type +'a t = private Int64.t
+    type -'a t = private Int64.t
     (** Identifiers use phantom types to ensure safety *)
 
     val cast : Int64.t -> 'a t

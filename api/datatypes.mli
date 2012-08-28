@@ -79,7 +79,7 @@ type namespace_info = {
 }
 
 type user_info = {
-  user_id : user Id.t;
+  user_id : user_t Id.t;
   user_name : string;
   user_anon : bool;
   user_groups : string list;
@@ -97,7 +97,7 @@ type category_info = {
 }
 
 type rc_info = {
-  rc_id : rc_info Id.t;
+  rc_id : rc_t Id.t;
   rc_type : rc_type;
   rc_title : Title.t;
   rc_user : user;
@@ -134,7 +134,7 @@ class type session =
   object
     method site : site
     method username : string option
-    method userid : user Id.t
+    method userid : user_t Id.t
     method is_valid : bool
     method get_call : query -> Call.call
     method post_call : query -> Call.call
