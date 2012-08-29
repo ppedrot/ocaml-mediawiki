@@ -25,7 +25,53 @@ let namespaces session =
   ] in
   Call.bind (Call.http call) process
 
-let userinfo session =
+let general_info session =
+  let process xml =
+    let xml = find_by_tag "query" xml.Xml.children in
+    let xml = find_by_tag "general" xml.Xml.children in
+    Call.return xml.Xml.attribs
+  in
+  let call = session#get_call [
+    "action", Some "query";
+    "meta", Some "siteinfo";
+    "siprop", Some "general";
+  ] in
+  Call.bind (Call.http call) process
+
+let statistics session =
+  let process xml =
+    let xml = find_by_tag "query" xml.Xml.children in
+    let xml = find_by_tag "statistics" xml.Xml.children in
+    Call.return (make_statistics xml)
+  in
+  let call = session#get_call [
+    "action", Some "query";
+    "meta", Some "siteinfo";
+    "siprop", Some "statistics";
+  ] in
+  Call.bind (Call.http call) process
+
+let interwikis session =
+  let process xml =
+    let xml = find_by_tag "query" xml.Xml.children in
+    let iws = try_children "interwikimap" xml in
+    let fold accu = function
+    | Element ({ Xml.tag = "iw" } as elt) ->
+      let iwinfo = make_interwiki elt in
+      iwinfo :: accu
+    | _ -> accu
+    in
+    let ans = List.fold_left fold [] iws in
+    Call.return ans
+  in
+  let call = session#get_call [
+    "action", Some "query";
+    "meta", Some "siteinfo";
+    "siprop", Some "interwikimap";
+  ] in
+  Call.bind (Call.http call) process
+
+let user_info session =
   let process xml =
     let xml = find_by_tag "query" xml.Xml.children in
     let xml = find_by_tag "userinfo" xml.Xml.children in

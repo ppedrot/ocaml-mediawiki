@@ -132,6 +132,32 @@ let make_nsinfo aliases data =
     ns_content = List.mem_assoc "content" l;
   }
 
+let make_statistics data =
+  if data.Xml.tag <> "statistics" then
+    raise (Call.API "Invalid argument: make_statistics");
+  let l = data.Xml.attribs in
+  let get_int key = int_of_string (List.assoc key l) in
+  {
+    stats_pages = get_int "pages";
+    stats_articles = get_int "articles";
+    stats_edits = get_int "edits";
+    stats_images = get_int "images";
+    stats_users = get_int "users";
+    stats_activeusers = get_int "activeusers";
+    stats_admins = get_int "admins";
+    stats_jobs = get_int "jobs";
+  }
+
+let make_interwiki data =
+  if data.Xml.tag <> "iw" then
+    raise (Call.API "Invalid argument: make_interwiki");
+  let l = data.Xml.attribs in
+  {
+    iw_prefix = List.assoc "prefix" l;
+    iw_url = List.assoc "url" l;
+    iw_local = List.mem_assoc "local" l;
+  }
+
 let get_continue data query =
   try
     let node = find_by_tag "query-continue" data.Xml.children in

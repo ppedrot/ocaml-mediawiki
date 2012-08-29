@@ -111,6 +111,23 @@ type rc_info = {
   rc_logaction : string option;
 }
 
+type site_statistics = {
+  stats_pages : int;
+  stats_articles : int;
+  stats_edits : int;
+  stats_images : int;
+  stats_users : int;
+  stats_activeusers : int;
+  stats_admins : int;
+  stats_jobs : int;
+}
+
+type interwiki_info = {
+  iw_prefix : string;
+  iw_url : string;
+  iw_local : bool;
+}
+
 type move_result = {
   moved_status : move_status;
   moved_page : (string * string);

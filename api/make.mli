@@ -30,5 +30,9 @@ val make_content : Xml.elt -> string
 
 val make_nsinfo : Xml.xml list -> Xml.elt -> namespace_info
 
+val make_statistics : Xml.elt -> site_statistics
+
+val make_interwiki : Xml.elt -> interwiki_info
+
 val get_continue : Xml.elt -> string ->
   [> `CONTINUE of (string * string option) list | `STOP ]
