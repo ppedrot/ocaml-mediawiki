@@ -1,5 +1,6 @@
-open Http_client
+open Nethttp_client
 open Printf
+open Netgzip
 
 type error =
 | Network_Error of string
@@ -140,7 +141,7 @@ let enqueue (call : 'a request) (p : pipeline) =
     | None -> body#open_value_rd ()
     | Some "gzip" ->
       let chan = body#open_value_rd () in
-      Netgzip.input_inflate chan
+      new input_inflate chan
     | Some enc ->
       let err = "Unsupported encoding: " ^ enc in
       fail (Network_Error err)

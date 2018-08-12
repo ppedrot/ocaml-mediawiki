@@ -20,7 +20,7 @@ let multipart_mime_message fields file : (mime_header * mime_body) =
     in
     (header, `Body (body :> mime_body))
   in
-  let boundary = Mimestring.create_boundary () in
+  let boundary = Netmime_string.create_boundary () in
   let multipart_body = (List.map make_part fields) @ [file_header, `Body file_body] in
   let multipart_header = new basic_mime_header [
     "Content-Type", "multipart/form-data; boundary=\"" ^ boundary ^ "\"";
@@ -31,7 +31,7 @@ let multipart_mime_message fields file : (mime_header * mime_body) =
   let (tmp_file, tmp_in, tmp_out) = Netchannels.make_temporary_file () in
   let () = close_in tmp_in in
   let tmp_out = new Netchannels.output_channel tmp_out in
-  let () = write_mime_message ~wr_header:false tmp_out message in
+  let () = Netmime_channels.write_mime_message ~wr_header:false tmp_out message in
   let () = tmp_out#close_out () in
   let length = BatFile.size_of_big tmp_file in
   let () = multipart_header#update_field "Content-Length" (Int64.to_string length) in

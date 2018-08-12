@@ -5,7 +5,7 @@
   management of HTTP calls and XML parsing.
 *)
 
-open Http_client
+open Nethttp_client
 
 type call
 

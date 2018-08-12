@@ -8,6 +8,6 @@ type mw_version = {
 
 let user_agent = "ocaml-mediawiki"
 
-module Set = BatPSet
-module Map = BatPMap
+module Set = BatSet.PSet
+module Map = BatMap
 
