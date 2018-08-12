@@ -9,5 +9,5 @@ val user_agent : string
 
 (** {6 Identifiers} *)
 
-module Set : (module type of BatPSet)
-module Map : (module type of BatPMap)
+module Set : (module type of BatSet.PSet)
+module Map : (module type of BatMap)

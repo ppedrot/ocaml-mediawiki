@@ -1,5 +1,5 @@
 open Printf
-open Http_client
+open Nethttp_client
 open Utils
 open Datatypes
 

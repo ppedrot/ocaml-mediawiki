@@ -7,7 +7,7 @@ open Datatypes
 
 exception Call_error of Call.error
 
-val pipeline : Http_client.pipeline
+val pipeline : Nethttp_client.pipeline
 (** Default pipeline used by this module. *)
 
 val process : 'a Call.t -> 'a
